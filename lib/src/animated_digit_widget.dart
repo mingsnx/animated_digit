@@ -3,6 +3,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'number_percision.dart';
+
 class AnimatedDigitController extends ValueNotifier<num>{
   AnimatedDigitController(num initialValue) : super(initialValue);
   
@@ -16,7 +18,7 @@ class AnimatedDigitController extends ValueNotifier<num>{
 
   void addValue(num newValue){
     if (!_dispose) {
-      value += newValue;
+      value = NP.plus(value, newValue);
     }
   }
 
