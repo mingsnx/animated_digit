@@ -1,14 +1,12 @@
-/// 
+///
 /// Copyright (c) by pub.dev number_precision 1.0.0+2
-/// 
+///
 /// pub.dev: https://pub.dev/packages/number_precision
-/// 
+///
 /// github: https://github.com/luoyelusheng/number_precision
-/// 
+///
 /// Author：luoyelusheng@gmail.com
-/// 
-
-
+///
 
 import 'dart:math';
 
@@ -18,6 +16,7 @@ const int int64MinValue = -9223372036854775808;
 /// The biggest possible value of an int within 64 bits.
 const int int64MaxValue = 9223372036854775807;
 
+/// number precision
 class NP {
   static bool _boundaryCheckingState = true;
 

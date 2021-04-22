@@ -1,7 +1,7 @@
 # animated_digit
 
-一个会上下滚动数字的 AnimatedWidget
-widget that can scroll up and down
+一个上下滚动的数字动画 widget，可以用于展示会动的金额、实时在线人数、
+凡是需要动画效果的数字，简单易用好控制，也能保证金额精度计算。
 
 ## Usage
 
@@ -15,7 +15,24 @@ AnimatedDigitWidget(
   enableDigitSplit: true,
 )
 
+// 累加一个数字
 _controller.addValue(1314);
 
+// 重置一个数字
+_controller.resetValue(1314);
+```
+
+## API
+
+累加一个数字 | addValue
+```
+AnimatedDigitController _controller = AnimatedDigitController(520);
+_controller.addValue(1314);
+```
+
+
+重置一个数字 | resetValue
+```
+AnimatedDigitController _controller = AnimatedDigitController(520);
 _controller.resetValue(1314);
 ```

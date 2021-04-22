@@ -1,5 +1,5 @@
 name: animated_digit
-description: widget that can scroll up and down
+description: 一个上下滚动的数字动画 widget，可以用于展示会动的金额、实时在线人数、凡是需要动画效果的数字，简单易用好控制，也能保证金额精度计算。
 version: 1.0.2
 homepage: https://github.com/mingsnx/animated_digit
 
