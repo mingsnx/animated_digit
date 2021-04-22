@@ -25,14 +25,14 @@ _controller.resetValue(1314);
 ## API
 
 累加一个数字 | addValue
-```
+``` dart
 AnimatedDigitController _controller = AnimatedDigitController(520);
 _controller.addValue(1314);
 ```
 
 
 重置一个数字 | resetValue
-```
+``` dart
 AnimatedDigitController _controller = AnimatedDigitController(520);
 _controller.resetValue(1314);
 ```
