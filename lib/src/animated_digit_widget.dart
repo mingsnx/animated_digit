@@ -32,8 +32,12 @@ class AnimatedDigitWidget extends StatefulWidget {
   final AnimatedDigitController controller;
   final TextStyle textStyle;
   final BoxDecoration boxDecoration;
+  
+  // 小数位
   final int fractionDigits;
+  // 启用数字分隔符
   final bool enableDigitSplit;
+  // 数字分隔符号
   final String digitSplitSymbol;
 
   AnimatedDigitWidget({
