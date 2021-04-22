@@ -158,4 +158,7 @@ packages:
     version: "2.1.0-nullsafety.3"
 sdks:
   dart: ">=2.10.0-110 <2.11.0"
+<<<<<<< HEAD
   flutter: ">=1.17.0"
+=======
+>>>>>>> 4148c69fef8ea2dc5a5e61e80b0e0c41f7613149
