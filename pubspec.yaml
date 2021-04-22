@@ -1,6 +1,6 @@
 name: animated_digit
 description: widget that can scroll up and down
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/mingsnx/animated_digit
 
 environment:

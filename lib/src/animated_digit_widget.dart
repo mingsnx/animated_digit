@@ -32,8 +32,12 @@ class AnimatedDigitWidget extends StatefulWidget {
   final AnimatedDigitController controller;
   final TextStyle textStyle;
   final BoxDecoration boxDecoration;
+  
+  // 小数位
   final int fractionDigits;
+  // 启用数字分隔符
   final bool enableDigitSplit;
+  // 数字分隔符号
   final String digitSplitSymbol;
 
   AnimatedDigitWidget({
@@ -60,7 +64,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
   String _oldValue;
   num get value => _value;
   set value(num newValue) {
-    _oldValue = value.toString();
+    _oldValue = _getValueAsString();
     _value = newValue;
     if (mounted) {
       setState(() {});
