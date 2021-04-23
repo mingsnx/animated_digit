@@ -30,14 +30,14 @@ _controller.resetValue(1314);
 累加一个数字 | addValue
 ``` dart
 AnimatedDigitController _controller = AnimatedDigitController(520);
-_controller.addValue(1314);
+_controller.addValue(1314); // 1834
 ```
 
 
 重置一个数字 | resetValue
 ``` dart
 AnimatedDigitController _controller = AnimatedDigitController(520);
-_controller.resetValue(1314);
+_controller.resetValue(1314); // 1314
 ```
 ## 感谢
 [number_precision](https://pub.dev/packages/number_precision)
