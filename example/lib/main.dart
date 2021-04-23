@@ -1,4 +1,3 @@
-
 import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,16 +6,16 @@ void main() {
   runApp(AnimatedDigitWidgetExample());
 }
 
-
 class AnimatedDigitWidgetExample extends StatefulWidget {
   AnimatedDigitWidgetExample({Key key}) : super(key: key);
 
   @override
-  _AnimatedDigitWidgetExampleState createState() => _AnimatedDigitWidgetExampleState();
+  _AnimatedDigitWidgetExampleState createState() =>
+      _AnimatedDigitWidgetExampleState();
 }
 
-class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample> {
-
+class _AnimatedDigitWidgetExampleState
+    extends State<AnimatedDigitWidgetExample> {
   AnimatedDigitController _controller = AnimatedDigitController(520);
 
   @override
@@ -25,15 +24,15 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
   }
 
   @override
-  void dispose() { 
+  void dispose() {
     _controller.dispose();
     super.dispose();
   }
-  
-  void _add(){
-    _controller.addValue(1314);
+
+  void _add() {
+    _controller.addValue(1314.18);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +45,29 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
           children: <Widget>[
             AnimatedDigitWidget(
               controller: _controller,
-              textStyle: TextStyle(color: Color(0xff009668)),
+              textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+              fractionDigits: 0,
+              enableDigitSplit: false,
+            ),
+            SizedBox(height: 20),
+            AnimatedDigitWidget(
+              controller: _controller,
+              textStyle: TextStyle(color: Colors.orange[200], fontSize: 30),
+              fractionDigits: 0,
+              enableDigitSplit: true,
+            ),
+            SizedBox(height: 20),
+            AnimatedDigitWidget(
+              controller: _controller,
+              textStyle: TextStyle(color: Colors.green, fontSize: 30),
+              fractionDigits: 2,
+              enableDigitSplit: true,
+              digitSplitSymbol: "'",
+            ),
+            SizedBox(height: 20),
+            AnimatedDigitWidget(
+              controller: _controller,
+              textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30),
               fractionDigits: 2,
               enableDigitSplit: true,
             )

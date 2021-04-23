@@ -157,19 +157,23 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
     value = widget.controller.value;
   }
 
-  String _formatNum(num, {int fractionDigits: 2}) {
+  String _formatNum(String numstr, {int fractionDigits: 2}) {
     String result;
-    if (num != null) {
-      final List<String> numString =
-          double.parse(num.toString()).toString().split('.');
+    if (numstr != null) {
+      final List<String> numString = double.parse(numstr).toString().split('.');
+      if (!widget.enableDigitSplit && fractionDigits < 1) {
+        return numString.first;
+      }
       final List<String> digitList = List.from(numString.first.characters);
-      List<String> fractionList = List.from(numString.last.characters);
-      int len = digitList.length - 1;
-      for (int index = 0, i = len; i >= 0; index++, i--) {
-        if (index % 3 == 0 && i != len)
-          digitList[i] = digitList[i] + (widget.digitSplitSymbol ?? ",");
+      if (widget.enableDigitSplit) {
+        int len = digitList.length - 1;
+        for (int index = 0, i = len; i >= 0; index++, i--) {
+          if (index % 3 == 0 && i != len)
+            digitList[i] = digitList[i] + (widget.digitSplitSymbol ?? ",");
+        }
       }
       if (fractionDigits > 0) {
+        List<String> fractionList = List.from(numString.last.characters);
         if (fractionList.length > fractionDigits) {
           fractionList =
               fractionList.take(fractionDigits).toList(growable: false);
