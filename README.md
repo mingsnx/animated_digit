@@ -1,5 +1,6 @@
-# animated_digit
+[![Pub](https://img.shields.io/pub/v/animated_digit.svg?color=f7d7f6)](https://pub.dev/packages/animated_digit)
 
+# animated_digit
 一个上下滚动的数字动画 widget，可以用于展示会动的金额、实时在线人数、
 凡是需要动画效果的数字，简单易用好控制，也能保证金额精度计算。
 
