@@ -36,3 +36,5 @@ _controller.addValue(1314);
 AnimatedDigitController _controller = AnimatedDigitController(520);
 _controller.resetValue(1314);
 ```
+## 感谢
+[number_precision](https://pub.dev/packages/number_precision)
