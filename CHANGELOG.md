@@ -1,4 +1,10 @@
 
+## [1.0.5] - Prevent ScrollController not attached to any scroll views
+* 1.0.5 release
+* Add assert、annotation
+* Part param default handler
+* Prevent ScrollController not attached to any scroll views
+
 ## [1.0.4] - Fix that integers are not supported
 * 1.0.4 release
 * 修复支持整数

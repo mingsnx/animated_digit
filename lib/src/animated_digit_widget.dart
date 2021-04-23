@@ -16,15 +16,13 @@ import 'number_percision.dart';
 class AnimatedDigitController extends ValueNotifier<num> {
   /// #### 动画数字控制器
   ///
-  /// **code:example:**
+  /// **@initialValue** initial display value
   /// ```
-  /// AnimatedDigitController controller = AnimatedDigitController(99.99);
-  /// // 累加一个数值
-  /// controller.addValue(100);
-  /// // 重置数值
-  /// controller.resetValue(99.99);
+  /// AnimatedDigitController(99.99)
   /// ```
-  AnimatedDigitController(num initialValue) : super(initialValue);
+  AnimatedDigitController(num initialValue)
+      : assert(initialValue != null, "initialValue is not null"),
+        super(initialValue);
 
   bool _dispose = false;
 
@@ -34,7 +32,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
     super.dispose();
   }
 
-  /// #### 累加数字
+  /// #### 累加数字 | add value
   ///
   /// **能保证不丢失精度计算数值**
   ///
@@ -44,12 +42,13 @@ class AnimatedDigitController extends ValueNotifier<num> {
   /// print(controller.value) // 0.3
   /// ```
   void addValue(num newValue) {
+    assert(newValue != null, "addValue => newValue is not null");
     if (!_dispose) {
       value = NP.plus(value, newValue);
     }
   }
 
-  /// 重置数字
+  /// #### 重置数字 | reset value
   ///
   /// ```
   /// AnimatedDigitController controller = AnimatedDigitController(99.99);
@@ -61,6 +60,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
   /// print(controller.value) // 99.99
   /// ```
   void resetValue(num newValue) {
+    assert(newValue != null, "resetValue => newValue is not null");
     if (!_dispose) {
       value = newValue;
     }
@@ -95,29 +95,38 @@ class AnimatedDigitWidget extends StatefulWidget {
   final BoxDecoration boxDecoration;
 
   /// 小数位(1000520.987)
-  /// 1 => 1000520.9;
-  /// 2 => 1000520.98;
-  /// 3 => 1000520.987;
+  /// `<= 0` => 1000520;
+  /// `1` => 1000520.9;
+  /// `2` => 1000520.98;
+  /// `3` => 1000520.987;
+  /// `...` => 1000520.[...];
   final int fractionDigits;
 
-  /// 启用数字分隔符 1000520.99 | 1,000,520.99
+  /// 启用数字分隔符 `1000520.99` | `1,000,520.99`
   final bool enableDigitSplit;
 
-  /// 数字分隔符号 1,000,520.99
+  /// 数字千分位分隔符号, [`enableDigitSplit` = `false`]时无效
   ///
-  /// enableDigitSplit = false 无效
-  final String digitSplitSymbol;
+  /// `,` => `1,000,520.99`
+  ///
+  /// `'` => `1'000'520.99`
+  ///
+  /// `-` => `1-000-520.99`
+  ///
+  final String digitSplitNumber;
 
   /// build AnimatedDigitWidget
-  AnimatedDigitWidget({
+  const AnimatedDigitWidget({
     Key key,
-    @required this.textStyle,
     @required this.controller,
+    this.textStyle,
     this.boxDecoration,
     this.fractionDigits = 0,
     this.enableDigitSplit = false,
-    this.digitSplitSymbol = ",",
-  }) : super(key: key);
+    this.digitSplitNumber = ",",
+  })  : assert(controller != null, "must set controller and is not null"),
+        assert(enableDigitSplit != null, "enableDigitSplit is not null"),
+        super(key: key);
 
   @override
   _AnimatedDigitWidgetState createState() {
@@ -128,9 +137,14 @@ class AnimatedDigitWidget extends StatefulWidget {
 class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
   final List<_AnimatedSingleWidget> widgets = [];
 
-  num _value;
   String _oldValue;
+
+  num _value;
+
+  /// value get,
   num get value => _value;
+
+  /// value set
   set value(num newValue) {
     _oldValue = _getValueAsString();
     _value = newValue;
@@ -149,7 +163,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
   String _getValueAsString() {
     final _val = (_value ?? 0.0).toString();
     return widget.enableDigitSplit
-        ? _formatNum(_val, fractionDigits: widget.fractionDigits)
+        ? _formatNum(_val, fractionDigits: widget.fractionDigits ?? 0)
         : _val;
   }
 
@@ -169,7 +183,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
         int len = digitList.length - 1;
         for (int index = 0, i = len; i >= 0; index++, i--) {
           if (index % 3 == 0 && i != len)
-            digitList[i] = digitList[i] + (widget.digitSplitSymbol ?? ",");
+            digitList[i] = digitList[i] + (widget.digitSplitNumber ?? "");
         }
       }
       if (fractionDigits > 0) {
@@ -190,6 +204,13 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
   }
 
   @override
+  void didUpdateWidget(AnimatedDigitWidget oldWidget) {
+    widget.controller.removeListener(_onListenChangeValue);
+    super.didUpdateWidget(oldWidget);
+    widget.controller.addListener(_onListenChangeValue);
+  }
+
+  @override
   void dispose() {
     widget.controller.removeListener(_onListenChangeValue);
     super.dispose();
@@ -201,8 +222,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
     if (newValue.length == widgets.length) {
       for (var i = 0; i < newValue.length; i++) {
         if (i < _oldValue.length) {
-          final old = _oldValue[i];
-          final curr = newValue[i];
+          final String old = _oldValue[i];
+          final String curr = newValue[i];
           if (old != curr) {
             _setValue(widgets[i].key, curr);
           }
@@ -244,10 +265,7 @@ class _AnimatedSingleWidget extends StatefulWidget {
   final BoxDecoration boxDecoration;
   final String initialValue;
 
-  _AnimatedSingleWidget(
-      {this.boxDecoration: const BoxDecoration(color: Colors.black),
-      this.textStyle: const TextStyle(color: Colors.grey, fontSize: 30),
-      this.initialValue: "0"})
+  _AnimatedSingleWidget({this.boxDecoration, this.textStyle, this.initialValue})
       : super(key: GlobalKey<__AnimatedSingleWidgetState>());
 
   @override
@@ -257,29 +275,38 @@ class _AnimatedSingleWidget extends StatefulWidget {
 }
 
 class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
-  TextStyle get _textStyle => widget.textStyle;
+  TextStyle get _textStyle =>
+      widget.textStyle ?? const TextStyle(color: Colors.black, fontSize: 25);
   BoxDecoration get _boxDecoration => widget.boxDecoration;
 
   /// 数字的文本尺寸大小
   Size digitSize;
 
-  /// 当前值
-  String currentValue;
+  String _currentValue;
+
+  /// currentValue get
+  String get currentValue => _currentValue;
+
+  /// currentValue set
+  set currentValue(String val) {
+    _currentValue = val;
+    _checkValue();
+    _init();
+  }
 
   /// 数字滚动控制
-  ScrollController scrollController = ScrollController();
+  ScrollController scrollController;
 
   /// 是否为非数字的符号
-  bool get isSymbol => int.tryParse(currentValue) == null;
+  bool get isNumber => _isNumber;
+  bool _isNumber;
 
   @override
   void initState() {
     currentValue = widget.initialValue;
-    digitSize = _getPlaceholderSize(_textStyle, isSymbol ? currentValue : "0");
+    digitSize = _getPlaceholderSize(_textStyle, isNumber ? "0" : currentValue);
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _animateTo();
-    });
+    _init();
   }
 
   /// 设置一个新的值
@@ -287,21 +314,37 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     _setValue(newValue);
   }
 
+  void _init() {
+    if (isNumber) {
+      scrollController = ScrollController();
+      _animateTo();
+    }
+  }
+
   @override
   void dispose() {
-    scrollController.dispose();
+    scrollController?.dispose();
     super.dispose();
   }
 
-  _setValue(String newValue) {
+  void _checkValue() {
+    _isNumber = int.tryParse(currentValue) != null;
+  }
+
+  void _setValue(String newValue) {
     this.currentValue = newValue;
+    _checkValue();
     _animateTo();
   }
 
   void _animateTo() {
-    if (!isSymbol) {
-      scrollController.animateTo(int.parse(currentValue) * digitSize.height,
-          duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+    if (isNumber) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (scrollController.hasClients) {
+          scrollController.animateTo(int.parse(currentValue) * digitSize.height,
+              duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+        }
+      });
     }
   }
 
@@ -319,15 +362,15 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 
   Widget _build() {
-    if (isSymbol) {
-      return _buildStaticWidget(currentValue);
+    if (isNumber) {
+      return ListView(
+        controller: scrollController,
+        padding: EdgeInsets.zero,
+        children:
+            List<Widget>.generate(10, (index) => _buildStaticWidget("$index")),
+      );
     }
-    return ListView(
-      controller: scrollController,
-      padding: EdgeInsets.zero,
-      children:
-          List<Widget>.generate(10, (index) => _buildStaticWidget("$index")),
-    );
+    return _buildStaticWidget(currentValue);
   }
 
   Widget _buildStaticWidget(String val) {
@@ -338,7 +381,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 }
 
-Size _getPlaceholderSize(TextStyle _textStyle, [String text = "0"]) {
+Size _getPlaceholderSize(TextStyle _textStyle, String text) {
   TextPainter painter = TextPainter(
       textDirection: TextDirection.ltr,
       text: TextSpan(text: text, style: _textStyle));
