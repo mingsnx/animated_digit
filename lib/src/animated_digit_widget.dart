@@ -271,7 +271,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   @override
   void initState() {
     currentValue = widget.initialValue;
-    digitSize = _getPlaceholderSize(_textStyle);
+    digitSize = _getPlaceholderSize(_textStyle, isSymbol ? currentValue : "0");
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _animateTo();
@@ -334,10 +334,10 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 }
 
-Size _getPlaceholderSize(TextStyle _textStyle) {
+Size _getPlaceholderSize(TextStyle _textStyle, [String text = "0"]) {
   TextPainter painter = TextPainter(
       textDirection: TextDirection.ltr,
-      text: TextSpan(text: "0", style: _textStyle));
+      text: TextSpan(text: text, style: _textStyle));
   painter.layout();
   return painter.size;
 }
