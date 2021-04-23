@@ -4,7 +4,7 @@
 一个上下滚动的数字动画 widget，可以用于展示会动的金额、实时在线人数、
 凡是需要动画效果的数字，简单易用好控制，也能保证金额精度计算。
 
-![](example/animat-digit-example.gif)
+![](https://github.com/mingsnx/animated_digit/blob/master/example/animat-digit-example.gif)
 
 ## Usage
 
@@ -18,10 +18,10 @@ AnimatedDigitWidget(
   enableDigitSplit: true,
 )
 
-// 累加一个数字
+// 累加一个数字 | increment 
 _controller.addValue(1314);
 
-// 重置一个数字
+// 重置一个数字 | reset
 _controller.resetValue(1314);
 ```
 
