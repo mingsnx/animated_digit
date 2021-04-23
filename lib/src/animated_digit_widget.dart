@@ -94,7 +94,7 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// 等同于 Container BoxDecoration 的用法
   final BoxDecoration boxDecoration;
 
-  /// 小数位(1000520.987) 
+  /// 小数位(1000520.987)
   /// 1 => 1000520.9;
   /// 2 => 1000520.98;
   /// 3 => 1000520.987;
@@ -104,7 +104,7 @@ class AnimatedDigitWidget extends StatefulWidget {
   final bool enableDigitSplit;
 
   /// 数字分隔符号 1,000,520.99
-  /// 
+  ///
   /// enableDigitSplit = false 无效
   final String digitSplitSymbol;
 
