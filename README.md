@@ -4,6 +4,8 @@
 一个上下滚动的数字动画 widget，可以用于展示会动的金额、实时在线人数、
 凡是需要动画效果的数字，简单易用好控制，也能保证金额精度计算。
 
+![](example/animat-digit-example.gif)
+
 ## Usage
 
 ``` dart
