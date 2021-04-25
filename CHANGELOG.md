@@ -1,3 +1,6 @@
+## [1.0.5+1] - property digitSplitSymbol name modify error
+* 1.0.5+1 release
+* (property modify error) <= 1.0.4 digitSplitSymbol => (1.0.5)❌digitSplitNumber => (now)✅digitSplitSymbol 
 
 ## [1.0.5] - Prevent ScrollController not attached to any scroll views
 * 1.0.5 release

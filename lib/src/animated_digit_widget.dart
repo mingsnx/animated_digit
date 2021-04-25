@@ -113,7 +113,7 @@ class AnimatedDigitWidget extends StatefulWidget {
   ///
   /// `-` => `1-000-520.99`
   ///
-  final String digitSplitNumber;
+  final String digitSplitSymbol;
 
   /// build AnimatedDigitWidget
   const AnimatedDigitWidget({
@@ -123,7 +123,7 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.boxDecoration,
     this.fractionDigits = 0,
     this.enableDigitSplit = false,
-    this.digitSplitNumber = ",",
+    this.digitSplitSymbol = ",",
   })  : assert(controller != null, "must set controller and is not null"),
         assert(enableDigitSplit != null, "enableDigitSplit is not null"),
         super(key: key);
@@ -183,7 +183,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
         int len = digitList.length - 1;
         for (int index = 0, i = len; i >= 0; index++, i--) {
           if (index % 3 == 0 && i != len)
-            digitList[i] = digitList[i] + (widget.digitSplitNumber ?? "");
+            digitList[i] = digitList[i] + (widget.digitSplitSymbol ?? "");
         }
       }
       if (fractionDigits > 0) {
