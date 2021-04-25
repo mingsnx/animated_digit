@@ -8,7 +8,7 @@
 A scrolling digital animation widget that can be used to display the amount of animation, the number of people online in real-time,
 Any number that requires animation effects is simple and easy to use, and it can also guarantee the accuracy of the amount of calculation.
 
-![](https://github.com/mingsnx/animated_digit/blob/master/example/animat-digit-example.gif)
+![](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/animat-digit-example.gif)
 
 ## Usage
 
