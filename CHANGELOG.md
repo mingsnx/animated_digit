@@ -1,3 +1,8 @@
+## [1.0.6] - Fix BUG Cannot scroll after calling'addValue' or'resetValue' for the second time
+* 1.0.6 release
+* ✅Cannot scroll after calling'addValue' or'resetValue' for the second time
+* ✅第二次调用“ addValue”或“ resetValue”后无法滚动
+
 ## [1.0.5+1] - property digitSplitSymbol name modify error
 * 1.0.5+1 release
 * (property modify error) <= 1.0.4 digitSplitSymbol => (1.0.5)❌digitSplitNumber => (now)✅digitSplitSymbol 

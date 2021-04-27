@@ -291,7 +291,6 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   set currentValue(String val) {
     _currentValue = val;
     _checkValue();
-    _init();
   }
 
   /// 数字滚动控制
@@ -316,7 +315,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   void _init() {
     if (isNumber) {
-      scrollController = ScrollController();
+      scrollController ??= ScrollController();
       _animateTo();
     }
   }
@@ -328,12 +327,11 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 
   void _checkValue() {
-    _isNumber = int.tryParse(currentValue) != null;
+    _isNumber = int.tryParse(_currentValue) != null;
   }
 
   void _setValue(String newValue) {
-    this.currentValue = newValue;
-    _checkValue();
+    currentValue = newValue;
     _animateTo();
   }
 
