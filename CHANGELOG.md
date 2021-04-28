@@ -1,3 +1,8 @@
+## [2.0.0] - Migrate to null-safety.
+* 2.0.0 release
+* ✅Migrate to null-safety.
+* ✅迁移至空安全
+
 ## [1.0.6] - Fix BUG Cannot scroll after calling'addValue' or'resetValue' for the second time
 * 1.0.6 release
 * ✅Cannot scroll after calling'addValue' or'resetValue' for the second time

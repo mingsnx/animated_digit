@@ -20,9 +20,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
   /// ```
   /// AnimatedDigitController(99.99)
   /// ```
-  AnimatedDigitController(num initialValue)
-      : assert(initialValue != null, "initialValue is not null"),
-        super(initialValue);
+  AnimatedDigitController(num initialValue) : super(initialValue);
 
   bool _dispose = false;
 
@@ -42,9 +40,8 @@ class AnimatedDigitController extends ValueNotifier<num> {
   /// print(controller.value) // 0.3
   /// ```
   void addValue(num newValue) {
-    assert(newValue != null, "addValue => newValue is not null");
     if (!_dispose) {
-      value = NP.plus(value, newValue);
+      value = NPms.plus(value, newValue);
     }
   }
 
@@ -60,7 +57,6 @@ class AnimatedDigitController extends ValueNotifier<num> {
   /// print(controller.value) // 99.99
   /// ```
   void resetValue(num newValue) {
-    assert(newValue != null, "resetValue => newValue is not null");
     if (!_dispose) {
       value = newValue;
     }
@@ -89,23 +85,38 @@ class AnimatedDigitWidget extends StatefulWidget {
   final AnimatedDigitController controller;
 
   /// 数字字体样式
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// 等同于 Container BoxDecoration 的用法
-  final BoxDecoration boxDecoration;
+  final BoxDecoration? boxDecoration;
 
   /// 小数位(1000520.987)
+  ///
   /// `<= 0` => 1000520;
+  ///
   /// `1` => 1000520.9;
+  ///
   /// `2` => 1000520.98;
+  ///
   /// `3` => 1000520.987;
+  ///
   /// `...` => 1000520.[...];
-  final int fractionDigits;
+  final int? fractionDigits;
 
   /// 启用数字分隔符 `1000520.99` | `1,000,520.99`
+  ///
+  /// enable digit split
   final bool enableDigitSplit;
 
-  /// 数字千分位分隔符号, [`enableDigitSplit` = `false`]时无效
+  /// Default thousands separator [`enableDigitSplit` = `false`] invalid,
+  /// Other digits can be used `separatorDigits`,
+  ///
+  /// assert [separatorDigits] at least greater than or equal to 2
+  ///
+  /// 数字千分位分隔符号, [`enableDigitSplit` = `false`]时无效,
+  /// 其他位数可以使用 `separatorDigits`，
+  ///
+  /// 断言 [separatorDigits] 最小不能低于 2，可以等于
   ///
   /// `,` => `1,000,520.99`
   ///
@@ -113,19 +124,26 @@ class AnimatedDigitWidget extends StatefulWidget {
   ///
   /// `-` => `1-000-520.99`
   ///
-  final String digitSplitSymbol;
+  final String? digitSplitSymbol;
+
+  /// Separator digits, the default is thousands separator and at least greater than or equal to 2
+  ///
+  /// 数字分隔位数, 默认为千分位
+  ///
+  final int separatorDigits;
 
   /// build AnimatedDigitWidget
-  const AnimatedDigitWidget({
-    Key key,
-    @required this.controller,
-    this.textStyle,
-    this.boxDecoration,
-    this.fractionDigits = 0,
-    this.enableDigitSplit = false,
-    this.digitSplitSymbol = ",",
-  })  : assert(controller != null, "must set controller and is not null"),
-        assert(enableDigitSplit != null, "enableDigitSplit is not null"),
+  AnimatedDigitWidget(
+      {Key? key,
+      required this.controller,
+      this.textStyle,
+      this.boxDecoration,
+      this.fractionDigits = 0,
+      this.enableDigitSplit = false,
+      this.digitSplitSymbol = ",",
+      this.separatorDigits = 3})
+      : assert(separatorDigits >= 2,
+            "@separatorDigits at least greater than or equal to 2"),
         super(key: key);
 
   @override
@@ -135,18 +153,18 @@ class AnimatedDigitWidget extends StatefulWidget {
 }
 
 class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
-  final List<_AnimatedSingleWidget> widgets = [];
+  final List<_AnimatedSingleWidget> _widgets = [];
 
-  String _oldValue;
+  String _oldValue = "0.0";
 
-  num _value;
+  num _value = 0.0;
 
   /// value get,
   num get value => _value;
 
   /// value set
   set value(num newValue) {
-    _oldValue = _getValueAsString();
+    _oldValue = _getFormatValueAsString();
     _value = newValue;
     if (mounted) {
       setState(() {});
@@ -160,8 +178,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
     value = widget.controller.value;
   }
 
-  String _getValueAsString() {
-    final _val = (_value ?? 0.0).toString();
+  String _getFormatValueAsString() {
+    final _val = _value.toString();
     return widget.enableDigitSplit
         ? _formatNum(_val, fractionDigits: widget.fractionDigits ?? 0)
         : _val;
@@ -173,32 +191,28 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 
   String _formatNum(String numstr, {int fractionDigits: 2}) {
     String result;
-    if (numstr != null) {
-      final List<String> numString = double.parse(numstr).toString().split('.');
-      if (!widget.enableDigitSplit && fractionDigits < 1) {
-        return numString.first;
+    final List<String> numString = double.parse(numstr).toString().split('.');
+    if (!widget.enableDigitSplit && fractionDigits < 1) {
+      return numString.first;
+    }
+    final List<String> digitList = List.from(numString.first.characters);
+    if (widget.enableDigitSplit) {
+      int len = digitList.length - 1;
+      for (int index = 0, i = len; i >= 0; index++, i--) {
+        if (index % widget.separatorDigits == 0 && i != len)
+          digitList[i] = digitList[i] + (widget.digitSplitSymbol ?? "");
       }
-      final List<String> digitList = List.from(numString.first.characters);
-      if (widget.enableDigitSplit) {
-        int len = digitList.length - 1;
-        for (int index = 0, i = len; i >= 0; index++, i--) {
-          if (index % 3 == 0 && i != len)
-            digitList[i] = digitList[i] + (widget.digitSplitSymbol ?? "");
-        }
+    }
+    if (fractionDigits > 0) {
+      List<String> fractionList = List.from(numString.last.characters);
+      if (fractionList.length > fractionDigits) {
+        fractionList =
+            fractionList.take(fractionDigits).toList(growable: false);
       }
-      if (fractionDigits > 0) {
-        List<String> fractionList = List.from(numString.last.characters);
-        if (fractionList.length > fractionDigits) {
-          fractionList =
-              fractionList.take(fractionDigits).toList(growable: false);
-        }
-        result =
-            '${digitList.join('')}.${fractionList.join('').padRight(fractionDigits, "0")}';
-      } else {
-        result = digitList.join('');
-      }
+      result =
+          '${digitList.join('')}.${fractionList.join('').padRight(fractionDigits, "0")}';
     } else {
-      result = fractionDigits <= 0 ? "0" : "0.".padRight(fractionDigits, "0");
+      result = digitList.join('');
     }
     return result;
   }
@@ -218,19 +232,19 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 
   @override
   Widget build(BuildContext context) {
-    String newValue = _getValueAsString();
-    if (newValue.length == widgets.length) {
+    String newValue = _getFormatValueAsString();
+    if (newValue.length == _widgets.length) {
       for (var i = 0; i < newValue.length; i++) {
         if (i < _oldValue.length) {
           final String old = _oldValue[i];
           final String curr = newValue[i];
           if (old != curr) {
-            _setValue(widgets[i].key, curr);
+            _setValue(_widgets[i].key, curr);
           }
         }
       }
     } else {
-      widgets.clear();
+      _widgets.clear();
       for (var i = 0; i < newValue.length; i++) {
         var initialDigit = newValue[i];
         if (i < _oldValue.length) {
@@ -242,17 +256,19 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
       }
     }
 
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: widgets);
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: _widgets);
   }
 
-  void _setValue(Key _aswsKey, String value) {
-    (_aswsKey as GlobalKey<__AnimatedSingleWidgetState>)
-        .currentState
-        .setValue(value);
+  void _setValue(Key? _aswsKey, String value) {
+    if (_aswsKey != null) {
+      (_aswsKey as GlobalKey<__AnimatedSingleWidgetState>)
+          .currentState
+          ?.setValue(value);
+    }
   }
 
   void _addAnimatedSingleWidget(String value) {
-    widgets.add(_AnimatedSingleWidget(
+    _widgets.add(_AnimatedSingleWidget(
       initialValue: value,
       textStyle: widget.textStyle,
       boxDecoration: widget.boxDecoration,
@@ -261,11 +277,12 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 }
 
 class _AnimatedSingleWidget extends StatefulWidget {
-  final TextStyle textStyle;
-  final BoxDecoration boxDecoration;
+  final TextStyle? textStyle;
+  final BoxDecoration? boxDecoration;
   final String initialValue;
 
-  _AnimatedSingleWidget({this.boxDecoration, this.textStyle, this.initialValue})
+  _AnimatedSingleWidget(
+      {this.boxDecoration, this.textStyle, required this.initialValue})
       : super(key: GlobalKey<__AnimatedSingleWidgetState>());
 
   @override
@@ -277,12 +294,12 @@ class _AnimatedSingleWidget extends StatefulWidget {
 class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   TextStyle get _textStyle =>
       widget.textStyle ?? const TextStyle(color: Colors.black, fontSize: 25);
-  BoxDecoration get _boxDecoration => widget.boxDecoration;
+  BoxDecoration? get _boxDecoration => widget.boxDecoration;
 
   /// 数字的文本尺寸大小
-  Size digitSize;
+  Size digitSize = Size.zero;
 
-  String _currentValue;
+  String _currentValue = "0";
 
   /// currentValue get
   String get currentValue => _currentValue;
@@ -293,12 +310,16 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     _checkValue();
   }
 
+  void _checkValue() {
+    _isNumber = int.tryParse(_currentValue) != null;
+  }
+
   /// 数字滚动控制
-  ScrollController scrollController;
+  ScrollController? scrollController;
 
   /// 是否为非数字的符号
   bool get isNumber => _isNumber;
-  bool _isNumber;
+  bool _isNumber = true;
 
   @override
   void initState() {
@@ -326,10 +347,6 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     super.dispose();
   }
 
-  void _checkValue() {
-    _isNumber = int.tryParse(_currentValue) != null;
-  }
-
   void _setValue(String newValue) {
     currentValue = newValue;
     _animateTo();
@@ -337,10 +354,12 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   void _animateTo() {
     if (isNumber) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        if (scrollController.hasClients) {
-          scrollController.animateTo(int.parse(currentValue) * digitSize.height,
-              duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        if (scrollController!.hasClients) {
+          scrollController!.animateTo(
+              int.parse(currentValue) * digitSize.height,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut);
         }
       });
     }

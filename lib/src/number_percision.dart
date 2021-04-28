@@ -17,7 +17,7 @@ const int int64MinValue = -9223372036854775808;
 const int int64MaxValue = 9223372036854775807;
 
 /// number precision
-class NP {
+class NPms {
   static bool _boundaryCheckingState = true;
 
   /// 字符串转为[num]类型
@@ -41,7 +41,7 @@ class NP {
 
   /// 返回小数的位数
   /// [number] 数据
-  static num digitLength(dynamic number) {
+  static int digitLength(dynamic number) {
     final eSplit = parseNum(number).toString().toLowerCase().split('e');
     final digit = eSplit[0].split('.');
     final len = (digit.length == 2 ? digit[1].length : 0) -
@@ -52,7 +52,7 @@ class NP {
   /// 把小数转成整数，支持科学计数法。如果是小数则放大成整数
   /// [number] 数据
   static num float2Fixed(dynamic number) {
-    final dLen = digitLength(number);
+    final int dLen = digitLength(number);
     if (dLen <= 20) {
       if (number is String) {
         if (number.toLowerCase().indexOf('e') == -1) {
@@ -88,7 +88,7 @@ class NP {
   /// [others] 更多操作数使用数组传递
   ///
   /// 譬如 times(1, 2, [22,33])
-  static num times(dynamic num1, dynamic num2, [List<dynamic> others]) {
+  static num times(dynamic num1, dynamic num2, [List<dynamic>? others]) {
     if (others != null) {
       return times(times(num1, num2), others[0],
           others.length >= 2 ? others.sublist(1) : null);
@@ -101,14 +101,14 @@ class NP {
     checkBoundary(leftValue);
 
     // if (leftValue.toString().length + baseNum < 20) {
-    return NP.strip(leftValue / pow(10, baseNum));
+    return strip(leftValue / pow(10, baseNum));
     // } else {
     //   return NP.strip(num.parse('${leftValue}e-$baseNum'));
     // }
   }
 
   /// 精确加法
-  static num plus(dynamic num1, dynamic num2, [List<dynamic> others]) {
+  static num plus(dynamic num1, dynamic num2, [List<dynamic>? others]) {
     if (others != null) {
       return plus(plus(num1, num2), others[0],
           others.length >= 2 ? others.sublist(1) : null);
@@ -118,7 +118,7 @@ class NP {
   }
 
   /// 精确减法
-  static num minus(dynamic num1, dynamic num2, [List<dynamic> others]) {
+  static num minus(dynamic num1, dynamic num2, [List<dynamic>? others]) {
     if (others != null) {
       return minus(minus(num1, num2), others[0],
           others.length >= 2 ? others.sublist(1) : null);
@@ -129,7 +129,7 @@ class NP {
   }
 
   /// 精确除法
-  static num divide(dynamic num1, dynamic num2, [List<dynamic> others]) {
+  static num divide(dynamic num1, dynamic num2, [List<dynamic>? others]) {
     if (others != null) {
       return divide(divide(num1, num2), others[0],
           others.length >= 2 ? others.sublist(1) : null);
