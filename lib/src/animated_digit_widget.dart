@@ -162,6 +162,9 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
   /// value get,
   num get value => _value;
 
+  /// is negative number
+  bool get isNegativeNumber => _value < 0;
+
   /// value set
   set value(num newValue) {
     _oldValue = _getFormatValueAsString();
@@ -191,7 +194,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 
   String _formatNum(String numstr, {int fractionDigits: 2}) {
     String result;
-    final bool isNegativeNumber = numstr.startsWith("-");
     final String _numstr = isNegativeNumber ? numstr.replaceFirst("-", "") : numstr;
     final List<String> numString = double.parse(_numstr).toString().split('.');
     
