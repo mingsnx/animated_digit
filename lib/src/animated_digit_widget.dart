@@ -191,9 +191,12 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 
   String _formatNum(String numstr, {int fractionDigits: 2}) {
     String result;
-    final List<String> numString = double.parse(numstr).toString().split('.');
+    final bool isNegativeNumber = numstr.startsWith("-");
+    final String _numstr = isNegativeNumber ? numstr.replaceFirst("-", "") : numstr;
+    final List<String> numString = double.parse(_numstr).toString().split('.');
+    
     if (!widget.enableDigitSplit && fractionDigits < 1) {
-      return numString.first;
+      result = numString.first;
     }
     final List<String> digitList = List.from(numString.first.characters);
     if (widget.enableDigitSplit) {
@@ -214,7 +217,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
     } else {
       result = digitList.join('');
     }
-    return result;
+    return "${(isNegativeNumber ? "-" : "")}$result";
   }
 
   @override
