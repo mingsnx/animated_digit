@@ -219,7 +219,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
     } else {
       result = digitList.join('');
     }
-    return "${(isNegativeNumber ? "-" : "")}$result";
+    return (isNegativeNumber ? "-" : "") + result;
   }
 
   @override
