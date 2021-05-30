@@ -1,3 +1,8 @@
+## [2.0.2] - null-safety Version. Fix the effect of digitSplitSymbol after negative numbers
+* 2.0.2 release
+* ✅null-safety Version!.
+* ✅Fix the effect of digitSplitSymbol after negative numbers
+* ✅修复负数后digitSplitSymbol的影响
 ## [2.0.1] - not null-safety Version. Fix the effect of digitSplitSymbol after negative numbers
 * 2.0.1 release
 * ✅not null-safety Version!.
