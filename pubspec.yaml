@@ -1,10 +1,10 @@
 name: animated_digit
 description: A scrolling digital animation widget that can be used to display the amount of animation and can also guarantee the accuracy of the amount of calculation.
-version: 2.0.0
+version: 2.0.1
 homepage: https://github.com/mingsnx/animated_digit
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
