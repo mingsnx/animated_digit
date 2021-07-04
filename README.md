@@ -1,4 +1,23 @@
-[![Pub](https://img.shields.io/pub/v/animated_digit.svg?color=f7d7f6)](https://pub.dev/packages/animated_digit)
+
+<p align="center">
+  <a href="https://flutter.dev/">
+    <img src="https://www.vectorlogo.zone/logos/flutterio/flutterio-ar21.svg" alt="flutter" style="vertical-align:top; margin:4px;">
+  </a>
+  <a href="https://dart.dev/">
+    <img src="https://www.vectorlogo.zone/logos/dartlang/dartlang-ar21.svg" alt="dart" style="vertical-align:top; margin:4px;">
+  </a>
+</p>
+<br/>
+
+> null-safety version 
+> 
+> [![Pub](https://shields.io/badge/pub-v2.0.2-ff69b4)](https://pub.flutter-io.cn/packages/animated_digit/versions/2.0.2)
+
+> not null-safety version 
+> 
+> [![Pub](https://shields.io/badge/pub-v2.0.1-ff69b4)](https://pub.flutter-io.cn/packages/animated_digit/versions/2.0.1)
+
+
 
 # animated_digit
 
