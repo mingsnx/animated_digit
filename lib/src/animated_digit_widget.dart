@@ -159,7 +159,7 @@ class AnimatedDigitWidget extends StatefulWidget {
   }
 }
 
-class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
+class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsBindingObserver {
   final List<_AnimatedSingleWidget> _widgets = [];
 
   String _oldValue = "0.0";
@@ -184,6 +184,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
     widget.controller.addListener(_onListenChangeValue);
     value = widget.controller.value;
   }
@@ -197,6 +198,14 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 
   void _onListenChangeValue() {
     value = widget.controller.value;
+  }
+
+  @override
+  void didChangeTextScaleFactor() {
+    super.didChangeTextScaleFactor();
+    _widgets.clear();
+    _onListenChangeValue();
+    setState(() {});
   }
 
   String _formatNum(String numstr, {int fractionDigits: 2}) {
@@ -239,6 +248,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
     widget.controller.removeListener(_onListenChangeValue);
     super.dispose();
   }
@@ -317,7 +327,7 @@ class _AnimatedSingleWidget extends StatefulWidget {
   }
 }
 
-class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with WidgetsBindingObserver {
+class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   /// text style
   TextStyle get _textStyle =>
       widget.textStyle ??
@@ -332,8 +342,6 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Widg
   /// scroll duration
   late final Duration _duration =
       widget.duration ?? const Duration(milliseconds: 300);
-
-  late ValueNotifier<Size> sizeNotifier; 
 
   /// 数字的文本尺寸大小
   Size digitSize = Size.zero;
@@ -365,11 +373,8 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Widg
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
-    sizeNotifier = ValueNotifier(digitSize);
     currentValue = widget.initialValue;
     getSize();
-    sizeNotifier.value = digitSize;
     _init();
   }
 
@@ -390,20 +395,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Widg
   }
 
   @override
-  void didChangeTextScaleFactor() {
-    scrollController?.dispose();
-    getSize();
-    // final currOffset = int.parse(currentValue) * digitSize.height;
-    scrollController = ScrollController();
-    sizeNotifier.value = digitSize;
-    Future.delayed(Duration(milliseconds: 100), () => setValue(currentValue));
-    super.didChangeTextScaleFactor();
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
-    sizeNotifier.dispose();
     scrollController?.dispose();
     super.dispose();
   }
@@ -431,16 +423,11 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Widg
   Widget build(BuildContext context) {
     return AbsorbPointer(
       absorbing: true,
-      child: ValueListenableBuilder<Size>(
-        valueListenable: sizeNotifier,
-        builder: (context, size, w) {
-          return Container(
-            width: size.width,
-            height: size.height,
-            decoration: _boxDecoration,
-            child: _build(),
-          );
-        }
+      child: Container(
+        width: digitSize.width,
+        height: digitSize.height,
+        decoration: _boxDecoration,
+        child: _build(),
       )
     );
   }
@@ -461,7 +448,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Widg
 
   Widget _buildStaticWidget(String val) {
     return SizedBox.fromSize(
-      size: sizeNotifier.value,
+      size: digitSize,
       child: Center(
         child: Text(
           val,
