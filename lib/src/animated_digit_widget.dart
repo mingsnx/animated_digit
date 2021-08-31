@@ -447,9 +447,10 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 Size _getPlaceholderSize(TextStyle _textStyle, String text) {
   var window = WidgetsBinding.instance?.window ?? ui.window;
   TextPainter painter = TextPainter(
-      textDirection: TextDirection.ltr,
-      text: TextSpan(text: text, style: _textStyle),
-      textScaleFactor: window.textScaleFactor);
+    textDirection: TextDirection.ltr,
+    text: TextSpan(text: text, style: _textStyle),
+    textScaleFactor: window.textScaleFactor,
+  );
   painter.layout();
   return painter.size;
 }
