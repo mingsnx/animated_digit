@@ -365,11 +365,11 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Widg
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
     sizeNotifier = ValueNotifier(digitSize);
     currentValue = widget.initialValue;
     getSize();
     sizeNotifier.value = digitSize;
-    WidgetsBinding.instance!.addObserver(this);
     _init();
   }
 
@@ -396,19 +396,15 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Widg
     // final currOffset = int.parse(currentValue) * digitSize.height;
     scrollController = ScrollController();
     sizeNotifier.value = digitSize;
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      _animateTo();
-      print("refersh");
-    });
-    
+    Future.delayed(Duration(milliseconds: 100), () => setValue(currentValue));
     super.didChangeTextScaleFactor();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
     sizeNotifier.dispose();
     scrollController?.dispose();
-    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 

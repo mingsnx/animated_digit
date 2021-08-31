@@ -1,5 +1,5 @@
 ## [2.0.4] - null-safety Version. resolve text textScaleFactor
-* 2.0.2 release
+* 2.0.4 release
 * ✅ null-safety Version!.
 * ✅ resolve textScaleFactor
 * ✅ 解决设备字体因 textScaleFactor 改变的影响
