@@ -181,6 +181,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsB
     }
   }
 
+  bool _resize = false;
+
   @override
   void initState() {
     super.initState();
@@ -203,6 +205,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsB
   @override
   void didChangeAccessibilityFeatures() {
     super.didChangeAccessibilityFeatures();
+    _resize = true;
     _widgets.clear();
     _onListenChangeValue();
   }
@@ -210,6 +213,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsB
   @override
   void didChangeTextScaleFactor() {
     super.didChangeTextScaleFactor();
+    _resize = true;
     _widgets.clear();
     _onListenChangeValue();
   }
@@ -262,7 +266,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsB
   @override
   Widget build(BuildContext context) {
     String newValue = _getFormatValueAsString();
-    if (newValue.length == _widgets.length) {
+    if (newValue.length == _widgets.length && !_resize) {
       for (var i = 0; i < newValue.length; i++) {
         if (i < _oldValue.length) {
           final String old = _oldValue[i];
@@ -284,7 +288,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsB
         _addAnimatedSingleWidget(initialDigit);
       }
     }
-
+    _resize = false;
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: _widgets);
   }
 
@@ -392,6 +396,12 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   void setValue(String newValue) {
     _setValue(newValue);
   }
+
+  void reSize() {
+    getSize();
+    setState(() {});
+  }
+
 
   void _init() {
     if (isNumber) {
