@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
@@ -159,7 +158,8 @@ class AnimatedDigitWidget extends StatefulWidget {
   }
 }
 
-class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsBindingObserver {
+class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
+    with WidgetsBindingObserver {
   final List<_AnimatedSingleWidget> _widgets = [];
 
   String _oldValue = "0.0";
@@ -383,7 +383,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     _init();
   }
 
-  void getSize(){
+  void getSize() {
     digitSize = _getPlaceholderSize(_textStyle, isNumber ? "0" : currentValue);
   }
 
@@ -396,7 +396,6 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     getSize();
     setState(() {});
   }
-
 
   void _init() {
     if (isNumber) {
@@ -433,14 +432,13 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      absorbing: true,
-      child: Container(
-        width: digitSize.width,
-        height: digitSize.height,
-        decoration: _boxDecoration,
-        child: _build(),
-      )
-    );
+        absorbing: true,
+        child: Container(
+          width: digitSize.width,
+          height: digitSize.height,
+          decoration: _boxDecoration,
+          child: _build(),
+        ));
   }
 
   Widget _build() {
@@ -467,16 +465,18 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
         ),
       ),
     );
-    
   }
 }
 
 Size _getPlaceholderSize(TextStyle _textStyle, String text) {
   var window = WidgetsBinding.instance?.window ?? ui.window;
-  var fontWeight = window.accessibilityFeatures.boldText ? FontWeight.bold : FontWeight.normal;
+  var fontWeight = window.accessibilityFeatures.boldText
+      ? FontWeight.bold
+      : FontWeight.normal;
   TextPainter painter = TextPainter(
     textDirection: TextDirection.ltr,
-    text: TextSpan(text: text, style: _textStyle.copyWith(fontWeight: fontWeight)),
+    text: TextSpan(
+        text: text, style: _textStyle.copyWith(fontWeight: fontWeight)),
     textScaleFactor: window.textScaleFactor,
   );
   painter.layout();
