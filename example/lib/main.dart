@@ -50,6 +50,7 @@ class _AnimatedDigitWidgetExampleState
                 textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
                 fractionDigits: 0,
                 enableDigitSplit: false,
+                duration: const Duration(seconds: 1),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -57,6 +58,7 @@ class _AnimatedDigitWidgetExampleState
                 textStyle: TextStyle(color: Colors.orange[200], fontSize: 30),
                 fractionDigits: 0,
                 enableDigitSplit: true,
+                duration: const Duration(milliseconds: 500),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -65,6 +67,7 @@ class _AnimatedDigitWidgetExampleState
                 fractionDigits: 2,
                 enableDigitSplit: true,
                 digitSplitSymbol: "'",
+                duration: const Duration(milliseconds: 500),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -72,6 +75,7 @@ class _AnimatedDigitWidgetExampleState
                 textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30),
                 fractionDigits: 2,
                 enableDigitSplit: true,
+                duration: const Duration(seconds: 1),
               )
             ],
           ),

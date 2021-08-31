@@ -284,6 +284,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
       initialValue: value,
       textStyle: widget.textStyle,
       boxDecoration: widget.boxDecoration,
+      duration: widget.duration,
     ));
   }
 }
