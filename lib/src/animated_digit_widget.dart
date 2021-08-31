@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
@@ -316,7 +317,7 @@ class _AnimatedSingleWidget extends StatefulWidget {
   }
 }
 
-class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
+class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with WidgetsBindingObserver {
   /// text style
   TextStyle get _textStyle =>
       widget.textStyle ??
@@ -331,6 +332,8 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   /// scroll duration
   late final Duration _duration =
       widget.duration ?? const Duration(milliseconds: 300);
+
+  late ValueNotifier<Size> sizeNotifier; 
 
   /// 数字的文本尺寸大小
   Size digitSize = Size.zero;
@@ -361,10 +364,17 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   @override
   void initState() {
-    currentValue = widget.initialValue;
-    digitSize = _getPlaceholderSize(_textStyle, isNumber ? "0" : currentValue);
     super.initState();
+    sizeNotifier = ValueNotifier(digitSize);
+    currentValue = widget.initialValue;
+    getSize();
+    sizeNotifier.value = digitSize;
+    WidgetsBinding.instance!.addObserver(this);
     _init();
+  }
+
+  void getSize(){
+    digitSize = _getPlaceholderSize(_textStyle, isNumber ? "0" : currentValue);
   }
 
   /// 设置一个新的值
@@ -380,8 +390,25 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 
   @override
-  void dispose() {
+  void didChangeTextScaleFactor() {
     scrollController?.dispose();
+    getSize();
+    // final currOffset = int.parse(currentValue) * digitSize.height;
+    scrollController = ScrollController();
+    sizeNotifier.value = digitSize;
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      _animateTo();
+      print("refersh");
+    });
+    
+    super.didChangeTextScaleFactor();
+  }
+
+  @override
+  void dispose() {
+    sizeNotifier.dispose();
+    scrollController?.dispose();
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 
@@ -408,12 +435,17 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   Widget build(BuildContext context) {
     return AbsorbPointer(
       absorbing: true,
-      child: Container(
-        width: digitSize.width,
-        height: digitSize.height,
-        decoration: _boxDecoration,
-        child: _build(),
-      ),
+      child: ValueListenableBuilder<Size>(
+        valueListenable: sizeNotifier,
+        builder: (context, size, w) {
+          return Container(
+            width: size.width,
+            height: size.height,
+            decoration: _boxDecoration,
+            child: _build(),
+          );
+        }
+      )
     );
   }
 
@@ -433,7 +465,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   Widget _buildStaticWidget(String val) {
     return SizedBox.fromSize(
-      size: digitSize,
+      size: sizeNotifier.value,
       child: Center(
         child: Text(
           val,
@@ -441,6 +473,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
         ),
       ),
     );
+    
   }
 }
 
