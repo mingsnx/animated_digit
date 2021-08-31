@@ -201,6 +201,13 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsB
   }
 
   @override
+  void didChangeAccessibilityFeatures() {
+    super.didChangeAccessibilityFeatures();
+    _widgets.clear();
+    _onListenChangeValue();
+  }
+
+  @override
   void didChangeTextScaleFactor() {
     super.didChangeTextScaleFactor();
     _widgets.clear();
