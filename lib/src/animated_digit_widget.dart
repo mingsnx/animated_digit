@@ -205,7 +205,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> with WidgetsB
     super.didChangeTextScaleFactor();
     _widgets.clear();
     _onListenChangeValue();
-    setState(() {});
   }
 
   String _formatNum(String numstr, {int fractionDigits: 2}) {
