@@ -83,11 +83,14 @@ class AnimatedDigitController extends ValueNotifier<num> {
 /// ```
 ///
 class AnimatedDigitWidget extends StatefulWidget {
-  /// 数字控制器
+  /// 数字控制器 | digit controller
   final AnimatedDigitController controller;
 
-  /// 数字字体样式
+  /// 数字字体样式 | digit text style
   final TextStyle? textStyle;
+
+  /// 动画时间 | animate duration
+  final Duration? duration;
 
   /// 等同于 Container BoxDecoration 的用法
   final BoxDecoration? boxDecoration;
@@ -139,6 +142,7 @@ class AnimatedDigitWidget extends StatefulWidget {
       {Key? key,
       required this.controller,
       this.textStyle,
+      this.duration,
       this.boxDecoration,
       this.fractionDigits = 0,
       this.enableDigitSplit = false,
@@ -284,14 +288,26 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
   }
 }
 
+/// single
 class _AnimatedSingleWidget extends StatefulWidget {
+  /// textStyle
   final TextStyle? textStyle;
+
+  /// duration
+  final Duration? duration;
+
+  /// boxDecoration
   final BoxDecoration? boxDecoration;
+
+  /// initialValue
   final String initialValue;
 
-  _AnimatedSingleWidget(
-      {this.boxDecoration, this.textStyle, required this.initialValue})
-      : super(key: GlobalKey<__AnimatedSingleWidgetState>());
+  _AnimatedSingleWidget({
+    this.boxDecoration,
+    this.duration,
+    this.textStyle,
+    required this.initialValue,
+  }) : super(key: GlobalKey<__AnimatedSingleWidgetState>());
 
   @override
   State<StatefulWidget> createState() {
@@ -300,9 +316,20 @@ class _AnimatedSingleWidget extends StatefulWidget {
 }
 
 class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
+  /// text style
   TextStyle get _textStyle =>
-      widget.textStyle ?? const TextStyle(color: Colors.black, fontSize: 25);
+      widget.textStyle ??
+      const TextStyle(
+        color: Colors.black,
+        fontSize: 25,
+      );
+
+  /// box decoration
   BoxDecoration? get _boxDecoration => widget.boxDecoration;
+
+  /// scroll duration
+  late final Duration _duration =
+      widget.duration ?? const Duration(milliseconds: 300);
 
   /// 数字的文本尺寸大小
   Size digitSize = Size.zero;
@@ -319,6 +346,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     _checkValue();
   }
 
+  /// check value is number type
   void _checkValue() {
     _isNumber = int.tryParse(_currentValue) != null;
   }
@@ -366,9 +394,10 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
       WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
         if (scrollController!.hasClients) {
           scrollController!.animateTo(
-              int.parse(currentValue) * digitSize.height,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeInOut);
+            int.parse(currentValue) * digitSize.height,
+            duration: _duration,
+            curve: Curves.easeInOut,
+          );
         }
       });
     }
@@ -392,8 +421,10 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
       return ListView(
         controller: scrollController,
         padding: EdgeInsets.zero,
-        children:
-            List<Widget>.generate(10, (index) => _buildStaticWidget("$index")),
+        children: List<Widget>.generate(
+          10,
+          (index) => _buildStaticWidget("$index"),
+        ),
       );
     }
     return _buildStaticWidget(currentValue);
@@ -403,10 +434,11 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     return SizedBox.fromSize(
       size: digitSize,
       child: Center(
-          child: Text(
-        val,
-        style: _textStyle,
-      )),
+        child: Text(
+          val,
+          style: _textStyle,
+        ),
+      ),
     );
   }
 }
