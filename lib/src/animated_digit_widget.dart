@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -194,9 +196,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget> {
 
   String _formatNum(String numstr, {int fractionDigits: 2}) {
     String result;
-    final String _numstr = isNegativeNumber ? numstr.replaceFirst("-", "") : numstr;
+    final String _numstr =
+        isNegativeNumber ? numstr.replaceFirst("-", "") : numstr;
     final List<String> numString = double.parse(_numstr).toString().split('.');
-    
+
     if (!widget.enableDigitSplit && fractionDigits < 1) {
       result = numString.first;
     }
@@ -304,6 +307,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   /// 数字的文本尺寸大小
   Size digitSize = Size.zero;
 
+  /// private currentValue
   String _currentValue = "0";
 
   /// currentValue get
@@ -398,15 +402,21 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   Widget _buildStaticWidget(String val) {
     return SizedBox.fromSize(
       size: digitSize,
-      child: Center(child: Text(val, style: _textStyle)),
+      child: Center(
+          child: Text(
+        val,
+        style: _textStyle,
+      )),
     );
   }
 }
 
 Size _getPlaceholderSize(TextStyle _textStyle, String text) {
+  var window = WidgetsBinding.instance?.window ?? ui.window;
   TextPainter painter = TextPainter(
       textDirection: TextDirection.ltr,
-      text: TextSpan(text: text, style: _textStyle));
+      text: TextSpan(text: text, style: _textStyle),
+      textScaleFactor: window.textScaleFactor);
   painter.layout();
   return painter.size;
 }
