@@ -84,11 +84,14 @@ class AnimatedDigitController extends ValueNotifier<num> {
 ///
 class AnimatedDigitWidget extends StatefulWidget {
   /// 数字控制器 | digit controller
+  /// 
+  /// when the [controller] exists, the [value] will not take effect
   final AnimatedDigitController? controller;
 
-  /// 动画的数字，当没有 controller 时生效，用于不需要额外控制数字时
+  /// 动画的数字，当没有 [controller] 时生效，用于不需要额外控制数字时，同时存在时，[controller] 具有更高的优先级
   ///
-  /// Effective when there is no controller, used when no additional control digit are needed
+  /// Effective when there is no [controller], used when no additional control digits are needed
+  /// [controller] has higher priority
   final num? value;
 
   /// 数字字体样式 | digit text style
@@ -257,10 +260,11 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   @override
   void didUpdateWidget(AnimatedDigitWidget oldWidget) {
+    widget.controller?.removeListener(_onListenChangeValue);
     super.didUpdateWidget(oldWidget);
-    if (widget.controller != null) {
-      widget.controller!.removeListener(_onListenChangeValue);
-      widget.controller!.addListener(_onListenChangeValue);
+    widget.controller?.addListener(_onListenChangeValue);
+    if (widget.controller == null) {
+      _onListenChangeValue();
     }
   }
 
