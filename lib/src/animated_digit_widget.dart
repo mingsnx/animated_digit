@@ -156,7 +156,7 @@ class AnimatedDigitWidget extends StatefulWidget {
       this.separatorDigits = 3})
       : assert(separatorDigits >= 2,
             "@separatorDigits at least greater than or equal to 2"),
-        assert(value == null && controller == null,
+        assert(!(value == null && controller == null),
             "the @value & @controller cannot be null at the same time"),
         super(key: key);
 
