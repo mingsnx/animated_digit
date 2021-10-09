@@ -84,7 +84,12 @@ class AnimatedDigitController extends ValueNotifier<num> {
 ///
 class AnimatedDigitWidget extends StatefulWidget {
   /// 数字控制器 | digit controller
-  final AnimatedDigitController controller;
+  final AnimatedDigitController? controller;
+
+  /// 动画的数字，当没有 controller 时生效，用于不需要额外控制数字时
+  ///
+  /// Effective when there is no controller, used when no additional control digit are needed
+  final num? value;
 
   /// 数字字体样式 | digit text style
   final TextStyle? textStyle;
@@ -140,7 +145,8 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// build AnimatedDigitWidget
   AnimatedDigitWidget(
       {Key? key,
-      required this.controller,
+      this.controller,
+      this.value,
       this.textStyle,
       this.duration,
       this.boxDecoration,
@@ -150,6 +156,8 @@ class AnimatedDigitWidget extends StatefulWidget {
       this.separatorDigits = 3})
       : assert(separatorDigits >= 2,
             "@separatorDigits at least greater than or equal to 2"),
+        assert(value == null && controller == null,
+            "the @value & @controller cannot be null at the same time"),
         super(key: key);
 
   @override
@@ -160,6 +168,8 @@ class AnimatedDigitWidget extends StatefulWidget {
 
 class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     with WidgetsBindingObserver {
+  num get finalValue => widget.controller?.value ?? widget.value!;
+
   final List<_AnimatedSingleWidget> _widgets = [];
 
   String _oldValue = "0.0";
@@ -185,8 +195,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    widget.controller.addListener(_onListenChangeValue);
-    value = widget.controller.value;
+    widget.controller?.addListener(_onListenChangeValue);
+    value = finalValue;
   }
 
   String _getFormatValueAsString() {
@@ -197,7 +207,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   void _onListenChangeValue() {
-    value = widget.controller.value;
+    value = finalValue;
   }
 
   @override
@@ -247,15 +257,17 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   @override
   void didUpdateWidget(AnimatedDigitWidget oldWidget) {
-    widget.controller.removeListener(_onListenChangeValue);
     super.didUpdateWidget(oldWidget);
-    widget.controller.addListener(_onListenChangeValue);
+    if (widget.controller != null) {
+      widget.controller!.removeListener(_onListenChangeValue);
+      widget.controller!.addListener(_onListenChangeValue);
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
-    widget.controller.removeListener(_onListenChangeValue);
+    widget.controller?.removeListener(_onListenChangeValue);
     super.dispose();
   }
 

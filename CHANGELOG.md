@@ -1,3 +1,9 @@
+## [2.0.6] - When you don’t need a controller, you can use the value field
+* 2.0.6 release
+* ✅ null-safety Version!.
+* ✅ When you don’t need a controller, you can use the value field
+* ✅ 当不需要控制器时，可以使用 value 字段
+
 ## [2.0.4] - null-safety Version. resolve text textScaleFactor
 * 2.0.4 release
 * ✅ null-safety Version!.

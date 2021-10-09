@@ -1,6 +1,6 @@
 name: animated_digit
 description: A scrolling digital animation widget that can be used to display the amount of animation and can also guarantee the accuracy of the amount of calculation.
-version: 2.0.4
+version: 2.0.6
 homepage: https://github.com/mingsnx/animated_digit
 
 environment:
