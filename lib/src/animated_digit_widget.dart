@@ -84,7 +84,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
 ///
 class AnimatedDigitWidget extends StatefulWidget {
   /// 数字控制器 | digit controller
-  /// 
+  ///
   /// when the [controller] exists, the [value] will not take effect
   final AnimatedDigitController? controller;
 

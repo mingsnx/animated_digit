@@ -11,7 +11,7 @@
 
 > null-safety version 
 > 
-> [![Pub](https://shields.io/badge/pub-v2.0.4-ff69b4)](https://pub.flutter-io.cn/packages/animated_digit/versions/2.0.4)
+> [![Pub](https://shields.io/badge/pub-v2.0.4-ff69b4)](https://pub.flutter-io.cn/packages/animated_digit/versions/2.0.6)
 
 > not null-safety version 
 > 
@@ -36,6 +36,7 @@ AnimatedDigitController _controller = AnimatedDigitController(520);
 
 AnimatedDigitWidget(
   controller: _controller,
+  // value: 520, // v2.0.6
   textStyle: TextStyle(color: Color(0xff009668)),
   fractionDigits: 2,
   enableDigitSplit: true,
