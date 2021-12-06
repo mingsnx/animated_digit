@@ -1,3 +1,9 @@
+## [2.0.8] - fix scrollController null check
+* 2.0.8 release
+* ✅ null-safety Version!.
+* ✅ fix scrollController null check
+* ✅ 修复 scrollController 空检查
+
 ## [2.0.6] - When you don’t need a controller, you can use the value field
 * 2.0.6 release
 * ✅ null-safety Version!.

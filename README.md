@@ -9,16 +9,6 @@
 </p>
 <br/>
 
-> null-safety version 
-> 
-> [![Pub](https://shields.io/badge/pub-v2.0.4-ff69b4)](https://pub.flutter-io.cn/packages/animated_digit/versions/2.0.6)
-
-> not null-safety version 
-> 
-> [![Pub](https://shields.io/badge/pub-v2.0.1-ff69b4)](https://pub.flutter-io.cn/packages/animated_digit/versions/2.0.1)
-
-
-
 # animated_digit
 
 一个上下滚动的数字动画 widget，可以用于展示会动的金额、实时在线人数、
@@ -36,7 +26,14 @@ AnimatedDigitController _controller = AnimatedDigitController(520);
 
 AnimatedDigitWidget(
   controller: _controller,
-  // value: 520, // v2.0.6
+  textStyle: TextStyle(color: Color(0xff009668)),
+  fractionDigits: 2,
+  enableDigitSplit: true,
+)
+
+// >= v2.0.6
+AnimatedDigitWidget(
+  value: 520, 
   textStyle: TextStyle(color: Color(0xff009668)),
   fractionDigits: 2,
   enableDigitSplit: true,

@@ -415,7 +415,6 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   void _init() {
     if (isNumber) {
-      scrollController ??= ScrollController();
       _animateTo();
     }
   }
@@ -423,6 +422,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   @override
   void dispose() {
     scrollController?.dispose();
+    scrollController = null;
     super.dispose();
   }
 
@@ -433,6 +433,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   void _animateTo() {
     if (isNumber) {
+      scrollController ??= ScrollController();
       WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
         if (scrollController!.hasClients) {
           scrollController!.animateTo(
