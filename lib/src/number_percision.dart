@@ -10,11 +10,17 @@
 
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+
 /// The smallest possible value of an int within 64 bits.
-const int int64MinValue = -9223372036854775808;
+///
+/// Fix the minimumvalue of int under the web platform
+final int int64MinValue = kIsWeb ? -9219999990000000000 : -9223372036854775808;
 
 /// The biggest possible value of an int within 64 bits.
-const int int64MaxValue = 9223372036854775807;
+///
+/// Fix the maximum value of int under the web platform
+final int int64MaxValue = kIsWeb ? 9219999990000000000 : 9223372036854775807;
 
 /// number precision
 class NPms {

@@ -1,3 +1,8 @@
+## [2.1.0] - init late final scrollController resolve null value
+* 2.1.0 release
+* ✅ null-safety Version!.
+* ✅ use late final scrollController resolve init null value
+
 ## [2.0.8] - fix scrollController null check
 * 2.0.8 release
 * ✅ null-safety Version!.

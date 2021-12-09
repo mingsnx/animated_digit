@@ -385,7 +385,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 
   /// 数字滚动控制
-  ScrollController? scrollController;
+  late final ScrollController scrollController = ScrollController();
 
   /// 是否为非数字的符号
   bool get isNumber => _isNumber;
@@ -396,7 +396,7 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     super.initState();
     currentValue = widget.initialValue;
     getSize();
-    _init();
+    _animateTo();
   }
 
   void getSize() {
@@ -413,16 +413,9 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     setState(() {});
   }
 
-  void _init() {
-    if (isNumber) {
-      _animateTo();
-    }
-  }
-
   @override
   void dispose() {
-    scrollController?.dispose();
-    scrollController = null;
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -433,10 +426,9 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   void _animateTo() {
     if (isNumber) {
-      scrollController ??= ScrollController();
-      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-        if (scrollController!.hasClients) {
-          scrollController!.animateTo(
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          scrollController.animateTo(
             int.parse(currentValue) * digitSize.height,
             duration: _duration,
             curve: Curves.easeInOut,
@@ -449,13 +441,14 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-        absorbing: true,
-        child: Container(
-          width: digitSize.width,
-          height: digitSize.height,
-          decoration: _boxDecoration,
-          child: _build(),
-        ));
+      absorbing: true,
+      child: Container(
+        width: digitSize.width,
+        height: digitSize.height,
+        decoration: _boxDecoration,
+        child: _build(),
+      ),
+    );
   }
 
   Widget _build() {

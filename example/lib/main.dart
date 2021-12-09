@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,11 @@ class _AnimatedDigitWidgetExampleState
   }
 
   void _add() {
-    _controller.addValue(1314.18);
+    if (Random().nextBool()) {
+      _controller.resetValue(Random().nextInt(1314) + 210);
+    } else {
+      _controller.resetValue(Random().nextDouble() + 210);
+    }
   }
 
   @override

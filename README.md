@@ -11,11 +11,9 @@
 
 # animated_digit
 
-一个上下滚动的数字动画 widget，可以用于展示会动的金额、实时在线人数、
-凡是需要动画效果的数字，简单易用，也能保证金额精度计算。
+一个上下滚动的数字动画 widget，凡是需要动画效果的数字，简单易用。
 
-A scrolling digital animation widget that can be used to display the amount of animation, the number of people online in real-time,
-Any number that requires animation effects is simple and easy to use, and it can also guarantee the accuracy of the amount of calculation.
+A scrolling digital animation widget that can be used to display the amount of animation, any number that requires animation effects is simple and easy to use.
 
 ![](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/animat-digit-example.gif)
 
