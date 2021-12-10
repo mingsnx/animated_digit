@@ -498,8 +498,6 @@ Size _getPlaceholderSize(TextStyle _textStyle, String text) {
       text: text,
       style: _textStyle.copyWith(
         fontWeight: fontWeight,
-        wordSpacing: 0,
-        letterSpacing: 0,
       ),
     ),
     textScaleFactor: window.textScaleFactor,
