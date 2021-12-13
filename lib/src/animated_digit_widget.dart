@@ -145,19 +145,27 @@ class AnimatedDigitWidget extends StatefulWidget {
   ///
   final int separatorDigits;
 
+  /// Insert a symbol between the integer part and the fractional part.
+  final String decimalSeparator;
+
+  /// The text to display after the counter.
+  final String suffix;
+
   /// build AnimatedDigitWidget
-  AnimatedDigitWidget(
-      {Key? key,
-      this.controller,
-      this.value,
-      this.textStyle,
-      this.duration,
-      this.boxDecoration,
-      this.fractionDigits = 0,
-      this.enableDigitSplit = false,
-      this.digitSplitSymbol = ",",
-      this.separatorDigits = 3})
-      : assert(separatorDigits >= 2,
+  AnimatedDigitWidget({
+    Key? key,
+    this.controller,
+    this.value,
+    this.textStyle,
+    this.duration,
+    this.boxDecoration,
+    this.fractionDigits = 0,
+    this.enableDigitSplit = false,
+    this.digitSplitSymbol = ",",
+    this.separatorDigits = 3,
+    this.decimalSeparator = '.',
+    this.suffix = '',
+  })  : assert(separatorDigits >= 2,
             "@separatorDigits at least greater than or equal to 2"),
         assert(!(value == null && controller == null),
             "the @value & @controller cannot be null at the same time"),
@@ -204,9 +212,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   String _getFormatValueAsString() {
     final _val = _value.toString();
-    return widget.enableDigitSplit
-        ? _formatNum(_val, fractionDigits: widget.fractionDigits ?? 0)
-        : _val;
+    return '${(widget.enableDigitSplit ? _formatNum(_val, fractionDigits: widget.fractionDigits ?? 0) : _val).replaceAll(
+      '.',
+      widget.decimalSeparator,
+    )} ${widget.suffix}';
   }
 
   void _onListenChangeValue() {
@@ -486,7 +495,11 @@ Size _getPlaceholderSize(TextStyle _textStyle, String text) {
   TextPainter painter = TextPainter(
     textDirection: TextDirection.ltr,
     text: TextSpan(
-        text: text, style: _textStyle.copyWith(fontWeight: fontWeight)),
+      text: text,
+      style: _textStyle.copyWith(
+        fontWeight: fontWeight,
+      ),
+    ),
     textScaleFactor: window.textScaleFactor,
   );
   painter.layout();

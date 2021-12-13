@@ -1,3 +1,6 @@
+## [2.1.1] - 
+* added decimalSeparator
+* added suffix
 ## [2.1.0] - init late final scrollController resolve null value
 * 2.1.0 release
 * ✅ null-safety Version!.
