@@ -10,7 +10,7 @@ void main() {
 }
 
 class AnimatedDigitWidgetExample extends StatefulWidget {
-  AnimatedDigitWidgetExample({Key key}) : super(key: key);
+  AnimatedDigitWidgetExample({Key? key}) : super(key: key);
 
   @override
   _AnimatedDigitWidgetExampleState createState() =>
@@ -21,9 +21,12 @@ class _AnimatedDigitWidgetExampleState
     extends State<AnimatedDigitWidgetExample> {
   AnimatedDigitController _controller = AnimatedDigitController(520);
 
+  double textscaleFactor = 1.0;
+
   @override
   void initState() {
     super.initState();
+    textscaleFactor = MediaQuery.textScaleFactorOf(context);
   }
 
   @override
@@ -40,6 +43,15 @@ class _AnimatedDigitWidgetExampleState
     }
   }
 
+  void updateFontScale() {
+    setState(() {
+      textscaleFactor = Random().nextDouble() + 1.1;
+    });
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      _controller.resetValue(_controller.value);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,10 +64,17 @@ class _AnimatedDigitWidgetExampleState
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               AnimatedDigitWidget(
+                value: 1314,
+                formatter: (val) => "I Love You $val",
+              ),
+              SizedBox(height: 20),
+              AnimatedDigitWidget(
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
                 fractionDigits: 0,
-                enableDigitSplit: false,
+                separatorDigits: 1,
+                digitSplitSymbol: "*",
+                enableDigitSplit: true,
                 duration: const Duration(seconds: 1),
               ),
               SizedBox(height: 20),
@@ -73,6 +92,9 @@ class _AnimatedDigitWidgetExampleState
                 fractionDigits: 2,
                 enableDigitSplit: true,
                 digitSplitSymbol: "'",
+                separatorDigits: 1,
+                decimalSeparator: "-",
+                suffix: "[￥]",
                 duration: const Duration(milliseconds: 500),
               ),
               SizedBox(height: 20),
@@ -86,11 +108,27 @@ class _AnimatedDigitWidgetExampleState
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _add,
-          child: Icon(Icons.add),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FloatingActionButton(
+              onPressed: _add,
+              child: Icon(Icons.add),
+            ),
+            FloatingActionButton(
+              onPressed: updateFontScale,
+              child: Icon(Icons.font_download),
+            ),
+          ],
         ),
       ),
+      builder: (context, home) {
+        return MediaQuery(
+          data:
+              MediaQuery.of(context).copyWith(textScaleFactor: textscaleFactor),
+          child: home!,
+        );
+      },
     );
   }
 }

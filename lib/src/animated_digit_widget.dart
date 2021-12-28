@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 import 'number_percision.dart';
 
+typedef String FormatValue(String value);
+
 /// #### 动画数字控制器
 ///
 /// **code:example:**
@@ -69,6 +71,14 @@ class AnimatedDigitController extends ValueNotifier<num> {
 ///
 ///
 /// ```
+/// 1.
+/// - - - - - - - - - - - - - - - - -
+/// // easy
+/// AnimatedDigitWidget(value: 1314)
+/// - - - - - - - - - - - - - - - - -
+///
+/// 2.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// // 声明控制器
 /// AnimatedDigitController _controller = AnimatedDigitController(99.99);
 ///
@@ -79,7 +89,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
 ///   fractionDigits: 2, // 带两位小数
 ///   enableDigitSplit: true, // 启用千位数字分隔符
 /// )
-///
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// ```
 ///
 class AnimatedDigitWidget extends StatefulWidget {
@@ -95,12 +105,18 @@ class AnimatedDigitWidget extends StatefulWidget {
   final num? value;
 
   /// 数字字体样式 | digit text style
+  ///
+  /// see [TextStyle]
   final TextStyle? textStyle;
 
   /// 动画时间 | animate duration
+  ///
+  /// see [Duration]
   final Duration? duration;
 
   /// 等同于 Container BoxDecoration 的用法
+  ///
+  /// see [BoxDecoration]
   final BoxDecoration? boxDecoration;
 
   /// 小数位(1000520.987)
@@ -118,18 +134,18 @@ class AnimatedDigitWidget extends StatefulWidget {
 
   /// 启用数字分隔符 `1000520.99` | `1,000,520.99`
   ///
-  /// enable digit split
+  /// enable number separator
   final bool enableDigitSplit;
 
   /// Default thousands separator [`enableDigitSplit` = `false`] invalid,
   /// Other digits can be used `separatorDigits`,
   ///
-  /// assert [separatorDigits] at least greater than or equal to 2
+  /// assert [separatorDigits] at least greater than or equal to 1
   ///
   /// 数字千分位分隔符号, [`enableDigitSplit` = `false`]时无效,
   /// 其他位数可以使用 `separatorDigits`，
   ///
-  /// 断言 [separatorDigits] 最小不能低于 2，可以等于
+  /// 断言 [separatorDigits] 最小不能低于 1，可以等于
   ///
   /// `,` => `1,000,520.99`
   ///
@@ -139,7 +155,7 @@ class AnimatedDigitWidget extends StatefulWidget {
   ///
   final String? digitSplitSymbol;
 
-  /// Separator digits, the default is thousands separator and at least greater than or equal to 2
+  /// Separator digits, the default is thousands separator and at least greater than or equal to 1
   ///
   /// 数字分隔位数, 默认为千分位
   ///
@@ -151,7 +167,20 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// The text to display after the counter.
   final String suffix;
 
-  /// build AnimatedDigitWidget
+  /// 自定义格式化
+  ///
+  /// custom format
+  ///
+  /// ```dart
+  /// AnimatedDigitWidget(
+  ///   value: 2021,
+  ///   formatter: (val) => "Hello ~ $val",
+  /// ),
+  /// // => Hello ~ 2021
+  /// ```
+  final FormatValue? formatter;
+
+  /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({
     Key? key,
     this.controller,
@@ -165,8 +194,9 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.separatorDigits = 3,
     this.decimalSeparator = '.',
     this.suffix = '',
-  })  : assert(separatorDigits >= 2,
-            "@separatorDigits at least greater than or equal to 2"),
+    this.formatter,
+  })  : assert(separatorDigits >= 1,
+            "@separatorDigits at least greater than or equal to 1"),
         assert(!(value == null && controller == null),
             "the @value & @controller cannot be null at the same time"),
         super(key: key);
@@ -179,19 +209,16 @@ class AnimatedDigitWidget extends StatefulWidget {
 
 class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     with WidgetsBindingObserver {
-  num get finalValue => widget.controller?.value ?? widget.value!;
+  /// the controller value or widget value
+  num get currentValue => widget.controller?.value ?? widget.value!;
 
   final List<_AnimatedSingleWidget> _widgets = [];
 
   String _oldValue = "0.0";
-
   num _value = 0.0;
 
   /// value get,
   num get value => _value;
-
-  /// is negative number
-  bool get isNegativeNumber => _value < 0;
 
   /// value set
   set value(num newValue) {
@@ -202,38 +229,73 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     }
   }
 
+  /// is negative number
+  bool get isNegativeNumber => _value < 0;
+
+  MediaQueryData? _mediaQueryData;
+  bool changeDependencies = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
     widget.controller?.addListener(_onListenChangeValue);
-    value = finalValue;
+    value = currentValue;
   }
 
   String _getFormatValueAsString() {
-    final _val = _value.toString();
-    return '${(widget.enableDigitSplit ? _formatNum(_val, fractionDigits: widget.fractionDigits ?? 0) : _val).replaceAll(
-      '.',
-      widget.decimalSeparator,
-    )} ${widget.suffix}';
+    var _val = _value.toString();
+    if (widget.enableDigitSplit) {
+      _val = _formatNum(_val, fractionDigits: widget.fractionDigits ?? 0);
+    }
+    if (widget.decimalSeparator != '.') {
+      _val = _val.replaceAll('.', widget.decimalSeparator);
+    }
+    if (widget.suffix.isNotEmpty) {
+      _val = "$_val ${widget.suffix}";
+    }
+    return _handlerCustomFormatter(_val);
+  }
+
+  String _handlerCustomFormatter(String val) {
+    if (widget.formatter == null) {
+      return val;
+    }
+    return widget.formatter!(val);
   }
 
   void _onListenChangeValue() {
-    value = finalValue;
+    value = currentValue;
+  }
+
+  void _didChange() {
+    _widgets.clear();
+    _onListenChangeValue();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _mediaQueryData = MediaQuery.maybeOf(context);
+    changeDependencies = true;
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    changeDependencies = true;
   }
 
   @override
   void didChangeAccessibilityFeatures() {
     super.didChangeAccessibilityFeatures();
-    _widgets.clear();
-    _onListenChangeValue();
+    _didChange();
   }
 
   @override
   void didChangeTextScaleFactor() {
     super.didChangeTextScaleFactor();
-    _widgets.clear();
-    _onListenChangeValue();
+    _didChange();
   }
 
   String _formatNum(String numstr, {int fractionDigits: 2}) {
@@ -286,37 +348,46 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   @override
   Widget build(BuildContext context) {
-    String newValue = _getFormatValueAsString();
-    if (newValue.length == _widgets.length) {
-      for (var i = 0; i < newValue.length; i++) {
-        if (i < _oldValue.length) {
-          final String old = _oldValue[i];
-          final String curr = newValue[i];
-          if (old != curr) {
-            _setValue(_widgets[i].key, curr);
-          }
-        }
-      }
+    if (changeDependencies) {
+      _rebuild();
     } else {
-      _widgets.clear();
-      for (var i = 0; i < newValue.length; i++) {
-        var initialDigit = newValue[i];
-        if (i < _oldValue.length) {
-          final String old = _oldValue[i];
-          final String curr = newValue[i];
-          initialDigit = old != curr ? curr : old;
-        }
-        _addAnimatedSingleWidget(initialDigit);
-      }
+      _updateSingle();
     }
+    changeDependencies = false;
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: _widgets);
   }
 
+  void _rebuild([String? value]) {
+    _widgets.clear();
+    String newValue = value ?? _getFormatValueAsString();
+    for (var i = 0; i < newValue.length; i++) {
+      final initialDigit = newValue[i];
+      _addAnimatedSingleWidget(initialDigit);
+    }
+  }
+
+  void _updateSingle() {
+    String newValue = _getFormatValueAsString();
+    if (newValue.length != _oldValue.length) {
+      return _rebuild(newValue);
+    }
+    for (var i = 0; i < newValue.length; i++) {
+      if (i < _oldValue.length) {
+        final String old = _oldValue[i];
+        final String curr = newValue[i];
+        if (old != curr) {
+          _setValue(_widgets[i].key, curr);
+        }
+      }
+    }
+  }
+
   void _setValue(Key? _aswsKey, String value) {
-    if (_aswsKey != null) {
-      (_aswsKey as GlobalKey<__AnimatedSingleWidgetState>)
-          .currentState
-          ?.setValue(value);
+    if (_aswsKey == null) {
+      return;
+    }
+    if (_aswsKey is GlobalKey<__AnimatedSingleWidgetState>) {
+      _aswsKey.currentState!.setValue(value);
     }
   }
 
@@ -326,6 +397,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       textStyle: widget.textStyle,
       boxDecoration: widget.boxDecoration,
       duration: widget.duration,
+      textScaleFactor: _mediaQueryData?.textScaleFactor,
     ));
   }
 }
@@ -344,11 +416,14 @@ class _AnimatedSingleWidget extends StatefulWidget {
   /// initialValue
   final String initialValue;
 
+  final double? textScaleFactor;
+
   _AnimatedSingleWidget({
     this.boxDecoration,
     this.duration,
     this.textStyle,
     required this.initialValue,
+    this.textScaleFactor,
   }) : super(key: GlobalKey<__AnimatedSingleWidgetState>());
 
   @override
@@ -408,18 +483,34 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     _animateTo();
   }
 
-  void getSize() {
-    digitSize = _getPlaceholderSize(_textStyle, isNumber ? "0" : currentValue);
+  /// 获取占位符的 Size
+  Size getSize() {
+    final placeholder = isNumber ? "0" : currentValue;
+    return digitSize = _getPlaceholderSize(_textStyle, placeholder);
+  }
+
+  Size _getPlaceholderSize(TextStyle _textStyle, String text) {
+    final window = WidgetsBinding.instance?.window ?? ui.window;
+    final fontWeight = window.accessibilityFeatures.boldText
+        ? FontWeight.bold
+        : _textStyle.fontWeight == FontWeight.bold
+            ? FontWeight.bold
+            : FontWeight.normal;
+    TextPainter painter = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: TextSpan(
+        text: text,
+        style: _textStyle.copyWith(fontWeight: fontWeight),
+      ),
+      textScaleFactor: widget.textScaleFactor ?? window.textScaleFactor,
+    );
+    painter.layout();
+    return painter.size;
   }
 
   /// 设置一个新的值
   void setValue(String newValue) {
     _setValue(newValue);
-  }
-
-  void reSize() {
-    getSize();
-    setState(() {});
   }
 
   @override
@@ -436,14 +527,23 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   void _animateTo() {
     if (isNumber) {
       WidgetsBinding.instance?.addPostFrameCallback((_) {
-        if (scrollController.hasClients) {
-          scrollController.animateTo(
-            int.parse(currentValue) * digitSize.height,
-            duration: _duration,
-            curve: Curves.easeInOut,
-          );
-        }
+        _scrollAnimateTo();
       });
+    }
+  }
+
+  void _scrollAnimateTo([bool animate = true]) {
+    if (scrollController.hasClients) {
+      final value = int.parse(currentValue) * digitSize.height;
+      if (animate) {
+        scrollController.animateTo(
+          value,
+          duration: _duration,
+          curve: Curves.easeInOut,
+        );
+      } else {
+        scrollController.jumpTo(value);
+      }
     }
   }
 
@@ -475,33 +575,13 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 
   Widget _buildStaticWidget(String val) {
-    return SizedBox.fromSize(
-      size: digitSize,
-      child: Center(
-        child: Text(
-          val,
-          style: _textStyle,
+    return Container(
+      child: SizedBox.fromSize(
+        size: digitSize,
+        child: Center(
+          child: Text(val, style: _textStyle),
         ),
       ),
     );
   }
-}
-
-Size _getPlaceholderSize(TextStyle _textStyle, String text) {
-  var window = WidgetsBinding.instance?.window ?? ui.window;
-  var fontWeight = window.accessibilityFeatures.boldText
-      ? FontWeight.bold
-      : FontWeight.normal;
-  TextPainter painter = TextPainter(
-    textDirection: TextDirection.ltr,
-    text: TextSpan(
-      text: text,
-      style: _textStyle.copyWith(
-        fontWeight: fontWeight,
-      ),
-    ),
-    textScaleFactor: window.textScaleFactor,
-  );
-  painter.layout();
-  return painter.size;
 }
