@@ -1,6 +1,21 @@
+## [2.2.0] - publish 2.2.0
+* 2.2.0 release
+* ✅ null-safety Version!.
+* ✅ Fix use MediaQueryData.textScaleFactor
+* 🍇 added `formatter`, example:
+```dart
+AnimatedDigitWidget(
+  value: 2022,
+  formatter: (val) => "Hello ~ $val",
+),
+// => Hello ~ 2022
+```
+* 🍓 cancel assert separatorDigits >= 2, change to separatorDigits >= 1
+
 ## [2.1.1] - 
 * added decimalSeparator
 * added suffix
+
 ## [2.1.0] - init late final scrollController resolve null value
 * 2.1.0 release
 * ✅ null-safety Version!.
