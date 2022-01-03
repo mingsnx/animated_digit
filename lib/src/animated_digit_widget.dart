@@ -1,11 +1,88 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'number_percision.dart';
 
+/// #### 格式化最终显示的值
+///
+/// [value] 是默认要显示的结果
+///
+/// [value] is default display result
+///
 typedef String FormatValue(String value);
+
+/// #### 自定义每一个 Widget
+typedef Widget AnimatedSingleWidgetBuilder(
+  Size size,
+  String value,
+  bool isNumber,
+  Widget Function() defaultBuilder,
+);
+
+class SingleDigitData {
+  /// 单个字符容器尺寸大小。
+  /// 如果为 null，则以数字 `0` 为字体宽高标准计算得到。
+  ///
+  /// The single container size.
+  /// If it is null, it will be calculated with the number `0` as the font width and height standard.
+  ///
+  Size? size;
+
+  /// 自定义内容 builder
+  AnimatedSingleWidgetBuilder? builder;
+
+  bool syncContainerValueSize;
+
+  ///
+  SingleDigitData({this.size, this.syncContainerValueSize = true, this.builder});
+
+  @override
+  bool operator ==(Object other) {
+    if (other is SingleDigitData) {
+      return other.size == this.size && other.builder == this.builder;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => size.hashCode ^ builder.hashCode;
+}
+
+class SingleDigitProvider extends InheritedWidget {
+  const SingleDigitProvider({
+    Key? key,
+    required this.data,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  final SingleDigitData data;
+
+  static SingleDigitData of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<SingleDigitProvider>()!
+        .data;
+  }
+
+  static SingleDigitData? maybeOf(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<SingleDigitProvider>()
+        ?.data;
+  }
+
+  @override
+  bool updateShouldNotify(SingleDigitProvider oldWidget) =>
+      data != oldWidget.data;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+        DiagnosticsProperty<SingleDigitData>('data', data, showName: false));
+  }
+}
 
 /// #### 动画数字控制器
 ///
@@ -34,14 +111,27 @@ class AnimatedDigitController extends ValueNotifier<num> {
     super.dispose();
   }
 
-  /// #### 累加数字 | add value
+  /// ### 累加数字 | add value
   ///
-  /// **能保证不丢失精度计算数值**
+  /// ### **⚠️注意⚠️**
+  /// * 由于 dart 在 web 中的 int 上限值原因
+  /// * 最小值：[int64MinValue] = [-9219999999000000512]，
+  /// * 最大值：[int64MaxValue] = [9219999999000000512]
+  /// - 即：[-9219999999000000512, 9219999999000000512]
   ///
+  /// **能在不丢失精度计算数值**
+  ///
+  /// - 为什么需要不丢失精度计算？
+  ///
+  /// - 因为
+  /// ```dart
+  /// print(0.1 + 0.2); // => 0.30000000000000004
   /// ```
+  /// - 所以 [addValue] 内使用了 [NPms.plus]
+  /// ```dart
   /// AnimatedDigitController controller = AnimatedDigitController(0.1);
   /// controller.addValue(0.2);
-  /// print(controller.value) // 0.3
+  /// print(controller.value) // => 0.3
   /// ```
   void addValue(num newValue) {
     if (!_dispose) {
@@ -112,9 +202,15 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// 动画时间 | animate duration
   ///
   /// see [Duration]
-  final Duration? duration;
+  final Duration duration;
+
+  /// 动画曲线 | animate curve
+  ///
+  /// see [Curve]
+  final Curve curve;
 
   /// 等同于 Container BoxDecoration 的用法
+  /// 是对每一个字符生效
   ///
   /// see [BoxDecoration]
   final BoxDecoration? boxDecoration;
@@ -130,7 +226,7 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// `3` => 1000520.987;
   ///
   /// `...` => 1000520.[...];
-  final int? fractionDigits;
+  final int fractionDigits;
 
   /// 启用数字分隔符 `1000520.99` | `1,000,520.99`
   ///
@@ -174,11 +270,26 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// ```dart
   /// AnimatedDigitWidget(
   ///   value: 2021,
-  ///   formatter: (val) => "Hello ~ $val",
+  ///   formatter: (val) => "Hello ~ $val", // val is default display result
   /// ),
   /// // => Hello ~ 2021
   /// ```
   final FormatValue? formatter;
+
+  /// 数字采用循环滚动。
+  ///
+  /// - 假设每个数字的 `Box` 高度为 `30`.
+  ///
+  /// - `false` 时, 从 9 滚动到 => 1 时，中间间隔为 `[0, 1,..., 9]`.
+  /// 则是向 **`↑`** 滚动 `9 ~ 1` 之间的距离 `(9 - 1) * 30`,
+  ///
+  /// - `true` 时, 从 9 滚动到 => 1 时，中间间隔为 `{...9, 0, 1...}`.
+  /// 则是向 **`↓`** 滚动 `9 ~ 1` 之间的距离 `(10 - 9 + 1) * 30`
+  final bool loop;
+
+  /// 自定义 single builder
+  /// 每一个数字，每一个字符
+  final AnimatedSingleWidgetBuilder? singleBuilder;
 
   /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({
@@ -186,7 +297,8 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.controller,
     this.value,
     this.textStyle,
-    this.duration,
+    this.duration = const Duration(milliseconds: 300),
+    this.curve = Curves.easeInOut,
     this.boxDecoration,
     this.fractionDigits = 0,
     this.enableDigitSplit = false,
@@ -195,6 +307,8 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.decimalSeparator = '.',
     this.suffix = '',
     this.formatter,
+    this.loop = false,
+    this.singleBuilder,
   })  : assert(separatorDigits >= 1,
             "@separatorDigits at least greater than or equal to 1"),
         assert(!(value == null && controller == null),
@@ -233,24 +347,21 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   bool get isNegativeNumber => _value < 0;
 
   MediaQueryData? _mediaQueryData;
-  bool changeDependencies = false;
+  SingleDigitData? _singleDigitData;
+
+  /// [didChangeDependencies]依赖发生改变时或触发 [reassemble] 时，会变更成 `true`
+  bool _dirty = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    widget.controller?.addListener(_onListenChangeValue);
+    widget.controller?.addListener(_updateValue);
     value = currentValue;
   }
 
   String _getFormatValueAsString() {
-    var _val = _value.toString();
-    if (widget.enableDigitSplit) {
-      _val = _formatNum(_val, fractionDigits: widget.fractionDigits ?? 0);
-    }
-    if (widget.decimalSeparator != '.') {
-      _val = _val.replaceAll('.', widget.decimalSeparator);
-    }
+    var _val = _formatNum(_value.toString(), fractionDigits: widget.fractionDigits);
     if (widget.suffix.isNotEmpty) {
       _val = "$_val ${widget.suffix}";
     }
@@ -264,41 +375,47 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     return widget.formatter!(val);
   }
 
-  void _onListenChangeValue() {
+  void _updateValue() {
     value = currentValue;
   }
 
-  void _didChange() {
+  void _markNeedRebuild() {
     _widgets.clear();
-    _onListenChangeValue();
+    _dirty = true;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _mediaQueryData = MediaQuery.maybeOf(context);
-    changeDependencies = true;
+    final mq = MediaQuery.maybeOf(context);
+    final sdp = SingleDigitProvider.maybeOf(context);
+    if (_mediaQueryData != mq || _singleDigitData != sdp) {
+      _markNeedRebuild();
+    }
+    _mediaQueryData = mq;
+    _singleDigitData = sdp;
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    changeDependencies = true;
+    _markNeedRebuild();
   }
 
   @override
   void didChangeAccessibilityFeatures() {
     super.didChangeAccessibilityFeatures();
-    _didChange();
+    _markNeedRebuild();
   }
 
   @override
   void didChangeTextScaleFactor() {
     super.didChangeTextScaleFactor();
-    _didChange();
+    _markNeedRebuild();
   }
 
-  String _formatNum(String numstr, {int fractionDigits: 2}) {
+  String _formatNum(String numstr, {int fractionDigits = 2}) {
+    
     String result;
     final String _numstr =
         isNegativeNumber ? numstr.replaceFirst("-", "") : numstr;
@@ -306,13 +423,15 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
     if (!widget.enableDigitSplit && fractionDigits < 1) {
       result = numString.first;
+      
     }
     final List<String> digitList = List.from(numString.first.characters);
     if (widget.enableDigitSplit) {
       int len = digitList.length - 1;
+      final digitSplitSymbol = widget.digitSplitSymbol ?? "";
       for (int index = 0, i = len; i >= 0; index++, i--) {
         if (index % widget.separatorDigits == 0 && i != len)
-          digitList[i] = digitList[i] + (widget.digitSplitSymbol ?? "");
+          digitList[i] = digitList[i] + digitSplitSymbol;
       }
     }
     if (fractionDigits > 0) {
@@ -320,9 +439,16 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       if (fractionList.length > fractionDigits) {
         fractionList =
             fractionList.take(fractionDigits).toList(growable: false);
+      } else {
+        final padRightLen = fractionDigits - fractionList.length;
+        //Equivalent to `padRight(padRightLen, "0")`
+        fractionList.addAll(List.generate(padRightLen, (index) => "0"));
       }
-      result =
-          '${digitList.join('')}.${fractionList.join('').padRight(fractionDigits, "0")}';
+      final strbuff = StringBuffer();
+      strbuff.writeAll(digitList);
+      strbuff.write(widget.decimalSeparator);
+      strbuff.writeAll(fractionList);
+      result = strbuff.toString();
     } else {
       result = digitList.join('');
     }
@@ -331,29 +457,29 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   @override
   void didUpdateWidget(AnimatedDigitWidget oldWidget) {
-    widget.controller?.removeListener(_onListenChangeValue);
+    widget.controller?.removeListener(_updateValue);
     super.didUpdateWidget(oldWidget);
-    widget.controller?.addListener(_onListenChangeValue);
+    widget.controller?.addListener(_updateValue);
     if (widget.controller == null) {
-      _onListenChangeValue();
+      _updateValue();
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
-    widget.controller?.removeListener(_onListenChangeValue);
+    widget.controller?.removeListener(_updateValue);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (changeDependencies) {
+    if (_dirty) {
       _rebuild();
     } else {
-      _updateSingle();
+      _update();
     }
-    changeDependencies = false;
+    _dirty = false;
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: _widgets);
   }
 
@@ -361,15 +487,15 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     _widgets.clear();
     String newValue = value ?? _getFormatValueAsString();
     for (var i = 0; i < newValue.length; i++) {
-      final initialDigit = newValue[i];
-      _addAnimatedSingleWidget(initialDigit);
+      _addAnimatedSingleWidget(newValue[i]);
     }
   }
 
-  void _updateSingle() {
+  void _update() {
     String newValue = _getFormatValueAsString();
     if (newValue.length != _oldValue.length) {
-      return _rebuild(newValue);
+      _rebuild(newValue);
+      return;
     }
     for (var i = 0; i < newValue.length; i++) {
       if (i < _oldValue.length) {
@@ -378,15 +504,14 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
         if (old != curr) {
           _setValue(_widgets[i].key, curr);
         }
-      }
+      } else
+        break;
     }
   }
 
   void _setValue(Key? _aswsKey, String value) {
-    if (_aswsKey == null) {
-      return;
-    }
-    if (_aswsKey is GlobalKey<__AnimatedSingleWidgetState>) {
+    assert(_aswsKey != null);
+    if (_aswsKey is GlobalKey<_AnimatedSingleWidgetState>) {
       _aswsKey.currentState!.setValue(value);
     }
   }
@@ -398,7 +523,15 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       boxDecoration: widget.boxDecoration,
       duration: widget.duration,
       textScaleFactor: _mediaQueryData?.textScaleFactor,
+      singleDigitData: _singleDigitData,
+      loop: widget.loop,
+      singleBuilder: widget.singleBuilder,
     ));
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
   }
 }
 
@@ -410,32 +543,60 @@ class _AnimatedSingleWidget extends StatefulWidget {
   /// duration
   final Duration? duration;
 
+  /// curve
+  final Curve? curve;
+
   /// boxDecoration
   final BoxDecoration? boxDecoration;
 
   /// initialValue
   final String initialValue;
 
+  /// The [MediaQueryData] in textScaleFactor
   final double? textScaleFactor;
 
+  final SingleDigitData? singleDigitData;
+
+  final bool? loop;
+
+  /// The [MediaQueryData] in textScaleFactor
+  final AnimatedSingleWidgetBuilder? singleBuilder;
+
   _AnimatedSingleWidget({
+    required this.initialValue,
     this.boxDecoration,
     this.duration,
+    this.curve,
     this.textStyle,
-    required this.initialValue,
     this.textScaleFactor,
-  }) : super(key: GlobalKey<__AnimatedSingleWidgetState>());
+    this.singleDigitData,
+    this.loop,
+    this.singleBuilder,
+  }) : super(key: GlobalKey<_AnimatedSingleWidgetState>());
 
   @override
   State<StatefulWidget> createState() {
-    return __AnimatedSingleWidgetState();
+    return _AnimatedSingleWidgetState();
   }
 }
 
-class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
+class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
+  @override
+  void initState() {
+    super.initState();
+    data = widget.singleDigitData;
+    currentValue = widget.initialValue;
+    _initSize();
+    _animateTo();
+  }
+
+  SingleDigitData? data;
+
+  /// see [AnimatedDigitWidget.loop]
+  late final bool loop = widget.loop ?? false;
+
   /// text style
-  TextStyle get _textStyle =>
-      widget.textStyle ??
+  late final TextStyle _textStyle = widget.textStyle ??
       const TextStyle(
         color: Colors.black,
         fontSize: 25,
@@ -448,8 +609,20 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   late final Duration _duration =
       widget.duration ?? const Duration(milliseconds: 300);
 
-  /// 数字的文本尺寸大小
-  Size digitSize = Size.zero;
+  /// animate curve
+  late final Curve _curve = widget.curve ?? Curves.easeInOut;
+
+  /// 数字滚动控制
+  late final ScrollController scrollController = ScrollController();
+
+  /// 当前值(数字、符号、给定 [SingleDigitData.size])的尺寸大小
+  Size valueSize = Size.zero;
+
+  /// 每次需要滚动的距离，由 [_computeScrollOffset] 计算得到
+  double scrollOffset = 0.0;
+
+  /// private old value
+  String oldValue = "0";
 
   /// private currentValue
   String _currentValue = "0";
@@ -459,37 +632,43 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   /// currentValue set
   set currentValue(String val) {
+    oldValue = _currentValue;
     _currentValue = val;
     _checkValue();
   }
 
-  /// check value is number type
-  void _checkValue() {
-    _isNumber = int.tryParse(_currentValue) != null;
+  /// 设置一个新的值
+  void setValue(String newValue) {
+    currentValue = newValue;
+    _animateTo();
   }
-
-  /// 数字滚动控制
-  late final ScrollController scrollController = ScrollController();
 
   /// 是否为非数字的符号
   bool get isNumber => _isNumber;
   bool _isNumber = true;
 
-  @override
-  void initState() {
-    super.initState();
-    currentValue = widget.initialValue;
-    getSize();
-    _animateTo();
+  /// 检查当前的值是否为数字, 使用十进制转换
+  ///
+  /// check value is number type，decimal number convert
+  ///
+  /// **[radix]**:`null`
+  /// ```dart
+  /// int.tryParse('0xff') == 255; // true
+  /// ```
+  void _checkValue() {
+    _isNumber = int.tryParse(_currentValue, radix: 10) != null;
   }
 
-  /// 获取占位符的 Size
-  Size getSize() {
-    final placeholder = isNumber ? "0" : currentValue;
-    return digitSize = _getPlaceholderSize(_textStyle, placeholder);
+  /// 初始化当前值的 Size | 指定的 Size
+  Size _initSize() {
+    if (widget.singleDigitData?.size != null) {
+      return valueSize = widget.singleDigitData!.size!;
+    }
+    return valueSize = _getTextSize(isNumber ? "0" : currentValue);
   }
 
-  Size _getPlaceholderSize(TextStyle _textStyle, String text) {
+  /// 获取 [text] 的 Size
+  Size _getTextSize(String text) {
     final window = WidgetsBinding.instance?.window ?? ui.window;
     final fontWeight = window.accessibilityFeatures.boldText
         ? FontWeight.bold
@@ -508,80 +687,118 @@ class __AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     return painter.size;
   }
 
-  /// 设置一个新的值
-  void setValue(String newValue) {
-    _setValue(newValue);
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  void _setValue(String newValue) {
-    currentValue = newValue;
-    _animateTo();
-  }
-
+  /// 动画滚动到当前的数字
   void _animateTo() {
     if (isNumber) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
-        _scrollAnimateTo();
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          _scrollTo();
+        }
       });
     }
   }
 
-  void _scrollAnimateTo([bool animate = true]) {
-    if (scrollController.hasClients) {
-      final value = int.parse(currentValue) * digitSize.height;
-      if (animate) {
-        scrollController.animateTo(
-          value,
-          duration: _duration,
-          curve: Curves.easeInOut,
-        );
-      } else {
-        scrollController.jumpTo(value);
-      }
+  /// 滚动到距离 [scrollOffset]
+  Future<void> _scrollTo() {
+    _computeScrollOffset();
+    return scrollController.animateTo(
+      scrollOffset,
+      duration: _duration,
+      curve: _curve,
+    );
+  }
+
+  /// 计算需要滚动的距离 [scrollOffset]
+  void _computeScrollOffset() {
+    final int n = int.parse(currentValue);
+    if (loop) {
+      final int c = int.parse(oldValue);
+      final value = c > n ? 10 - c + n : n - c;
+      scrollOffset += value * valueSize.height;
+    } else {
+      scrollOffset = n * valueSize.height;
     }
   }
 
   @override
+  void dispose() {
+    if (loop || isNumber) scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final syncUseValueSize = data?.syncContainerValueSize ?? true;
     return AbsorbPointer(
       absorbing: true,
       child: Container(
-        width: digitSize.width,
-        height: digitSize.height,
+        width: isNumber ? valueSize.width : syncUseValueSize ? valueSize.width : null,
+        height: isNumber ? valueSize.height : syncUseValueSize ? valueSize.height : null,
         decoration: _boxDecoration,
+        alignment: Alignment.center,
         child: _build(),
       ),
     );
   }
 
+  /// 创建单个滚动 Widget
+  ///
+  /// [isNumber] 为 `true` 时才创建数字滚动容器
   Widget _build() {
     if (isNumber) {
-      return ListView(
-        controller: scrollController,
-        padding: EdgeInsets.zero,
-        children: List<Widget>.generate(
-          10,
-          (index) => _buildStaticWidget("$index"),
-        ),
+      return ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: _buildDigitScrollContainer(),
       );
     }
-    return _buildStaticWidget(currentValue);
+    return _buildSingleWidget(currentValue);
   }
 
-  Widget _buildStaticWidget(String val) {
-    return Container(
-      child: SizedBox.fromSize(
-        size: digitSize,
-        child: Center(
-          child: Text(val, style: _textStyle),
-        ),
-      ),
+  /// Bulid 数字滚动容器
+  ///
+  /// 根据 [loop] 构建出对应的滚动容器
+  Widget _buildDigitScrollContainer() {
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      controller: scrollController,
+      itemCount: loop ? null : 10,
+      itemExtent: valueSize.height,
+      itemBuilder: (_, i) {
+        final val = loop ? i % 10 : i;
+        return _buildSingleWidget(val.toString());
+      },
     );
+  }
+
+  /// 默认的构建单个 Widget 的内容
+  Widget defaultBuildSingleWidget(String val) {
+    return Center(
+      child: Text(val, style: _textStyle),
+    );
+  }
+
+  /// 根据配置构建单个 Widget 的内容
+  Widget _buildSingleWidget(String val) {
+    Widget defaultBuiled() => defaultBuildSingleWidget(val);
+    late Widget child;
+    if (data?.builder != null) {
+      child = data!.builder!(valueSize, val, isNumber, defaultBuiled);
+    } else if (widget.singleBuilder != null) {
+      child = widget.singleBuilder!(valueSize, val, isNumber, defaultBuiled);
+    } else {
+      child = defaultBuiled();
+    }
+    if (isNumber) {
+      child = SizedBox.fromSize(
+        size: valueSize,
+        child: child,
+      );
+    }
+    return child;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
   }
 }

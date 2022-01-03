@@ -19,7 +19,8 @@ class AnimatedDigitWidgetExample extends StatefulWidget {
 
 class _AnimatedDigitWidgetExampleState
     extends State<AnimatedDigitWidgetExample> {
-  AnimatedDigitController _controller = AnimatedDigitController(520);
+  AnimatedDigitController _controller =
+      AnimatedDigitController(DateTime.now().year);
 
   double textscaleFactor = 1.0;
 
@@ -36,19 +37,16 @@ class _AnimatedDigitWidgetExampleState
   }
 
   void _add() {
-    if (Random().nextBool()) {
-      _controller.resetValue(Random().nextInt(1314) + 210);
-    } else {
-      _controller.resetValue(Random().nextDouble() + 210);
-    }
+    _controller.addValue(Random().nextInt(DateTime.now().year + 1));
+  }
+
+  void _reset() {
+    _controller.resetValue(DateTime.now().year);
   }
 
   void updateFontScale() {
     setState(() {
-      textscaleFactor = Random().nextDouble() + 1.1;
-    });
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      _controller.resetValue(_controller.value);
+      textscaleFactor = textscaleFactor == 1.0 ? 1.5 : 1.0;
     });
   }
 
@@ -64,47 +62,96 @@ class _AnimatedDigitWidgetExampleState
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               AnimatedDigitWidget(
-                value: 1314,
-                formatter: (val) => "I Love You $val",
+                value: DateTime.now().year,
+                textStyle: TextStyle(color: Colors.red.shade500, fontSize: 25),
+                formatter: (val) => "Hello $val ~ ",
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
-                textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
-                fractionDigits: 0,
-                separatorDigits: 1,
-                digitSplitSymbol: "*",
-                enableDigitSplit: true,
-                duration: const Duration(seconds: 1),
+                loop: true,
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.orange[200], fontSize: 30),
-                fractionDigits: 0,
+                enableDigitSplit: true,
+                duration: const Duration(milliseconds: 500),
+                loop: true,
+              ),
+              SizedBox(height: 20),
+              AnimatedDigitWidget(
+                controller: _controller,
+                textStyle: TextStyle(color: Colors.purple[200], fontSize: 30),
+                fractionDigits: 2,
                 enableDigitSplit: true,
                 duration: const Duration(milliseconds: 500),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
-                textStyle: TextStyle(color: Colors.green, fontSize: 30),
-                fractionDigits: 2,
-                enableDigitSplit: true,
-                digitSplitSymbol: "'",
+                textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
                 separatorDigits: 1,
-                decimalSeparator: "-",
-                suffix: "[￥]",
-                duration: const Duration(milliseconds: 500),
+                digitSplitSymbol: "#",
+                enableDigitSplit: true,
+                loop: true,
+                duration: const Duration(seconds: 1),
+              ),
+              SizedBox(height: 20),
+              SingleDigitProvider(
+                data: SingleDigitData(
+                  syncContainerValueSize: false,
+                  size: Size.fromRadius(15),
+                  builder: (size, value, isNumber, defaultBuilder) {
+                    return isNumber ? defaultBuilder() : FlutterLogo(size: 20);
+                  },
+                ),
+                child: AnimatedDigitWidget(
+                  controller: _controller,
+                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+                  separatorDigits: 1,
+                  digitSplitSymbol: "#",
+                  enableDigitSplit: true,
+                  loop: true,
+                  duration: const Duration(seconds: 1),
+                ),
+              ),
+              SizedBox(height: 20),
+              AnimatedDigitWidget(
+                controller: _controller,
+                textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+                separatorDigits: 1,
+                digitSplitSymbol: "#",
+                enableDigitSplit: true,
+                loop: true,
+                singleBuilder: (size, value, isNumber, defaultBuilder) {
+                  return isNumber ? defaultBuilder() : FlutterLogo();
+                },
+                duration: const Duration(seconds: 1),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30),
+                suffix: "& ${DateTime.now().year + 1}",
+                duration: const Duration(seconds: 1),
+              ),
+              SizedBox(height: 20),
+              AnimatedDigitWidget(
+                controller: _controller,
+                textStyle: TextStyle(color: Colors.white, fontSize: 30),
                 fractionDigits: 2,
                 enableDigitSplit: true,
-                duration: const Duration(seconds: 1),
-              )
+                digitSplitSymbol: "·",
+                separatorDigits: 3,
+                decimalSeparator: ".",
+                loop: true,
+                boxDecoration:
+                    BoxDecoration(color: Colors.yellowAccent.shade400),
+                formatter: (val) => "\$$val",
+                curve: Curves.easeIn,
+                duration: const Duration(milliseconds: 500),
+              ),
             ],
           ),
         ),
@@ -115,9 +162,19 @@ class _AnimatedDigitWidgetExampleState
               onPressed: _add,
               child: Icon(Icons.add),
             ),
+            SizedBox(
+              height: 10,
+            ),
             FloatingActionButton(
               onPressed: updateFontScale,
               child: Icon(Icons.font_download),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton(
+              onPressed: _reset,
+              child: Icon(Icons.restart_alt),
             ),
           ],
         ),
