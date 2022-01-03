@@ -663,7 +663,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     if (widget.singleDigitData?.size != null) {
       return valueSize = widget.singleDigitData!.size!;
     }
-    return valueSize = _getTextSize(isNumber ? "0" : currentValue);
+    return valueSize = _getTextSize(currentValue);
   }
 
   /// 获取 [text] 的 Size
