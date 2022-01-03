@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:animated_digit/animated_digit.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
