@@ -497,14 +497,11 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       return;
     }
     for (var i = 0; i < newValue.length; i++) {
-      if (i < _oldValue.length) {
-        final String old = _oldValue[i];
-        final String curr = newValue[i];
-        if (old != curr) {
-          _setValue(_widgets[i].key, curr);
-        }
-      } else
-        break;
+      final String old = _oldValue[i];
+      final String curr = newValue[i];
+      if (old != curr) {
+        _setValue(_widgets[i].key, curr);
+      }
     }
   }
 
