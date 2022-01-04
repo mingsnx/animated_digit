@@ -1,3 +1,58 @@
+## [3.0.0] - publish 3.0.0
+* 3.0.0 release
+* added `loop` (default `false`), example:
+```dart
+AnimatedDigitWidget(
+  value: 2022,
+  loop: true,
+),
+```
+* added `singleBuilder`, example:
+```dart
+AnimatedDigitWidget(
+  value: 2022,
+  loop: true,
+  separatorDigits: 1,
+  digitSplitSymbol: "#",
+  enableDigitSplit: true,
+  singleBuilder: (size, value, isNumber, defaultBuilder) {
+    return isNumber ? defaultBuilder() : FlutterLogo();
+  },
+),
+```
+**run result**
+
+[![TO0f56.png](https://s4.ax1x.com/2022/01/04/TO0f56.png)](https://imgtu.com/i/TO0f56)
+
+* added `SingleDigitProvider` Widget, this is `InheritedWidget`. 
+> 它可以控制每个数字或符号的包装盒的大小和改变显示它们的方式，它比 `singleBuilder` 权利更大
+>
+> it can control the size of every digit/symbol wrapper box and change the way of display them, 
+> more powerful than `singleBuilder`
+
+**example**
+```dart
+SingleDigitProvider(
+  data: SingleDigitData(
+    syncContainerValueSize: false,
+    size: Size.fromRadius(15),
+    builder: (size, value, isNumber, defaultBuilder) {
+      return isNumber ? defaultBuilder() : FlutterLogo(size: 20);
+    },
+  ),
+  child: AnimatedDigitWidget(
+    controller: _controller,
+    textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+    separatorDigits: 1,
+    digitSplitSymbol: "#",
+    enableDigitSplit: true,
+    loop: true,
+    duration: const Duration(seconds: 1),
+  ),
+),
+```
+[![TOrgbj.png](https://s4.ax1x.com/2022/01/04/TOrgbj.png)](https://imgtu.com/i/TOrgbj)
+
 ## [2.2.0] - publish 2.2.0
 * 2.2.0 release
 * ✅ null-safety Version!.
