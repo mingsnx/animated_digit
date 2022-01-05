@@ -21,7 +21,9 @@ typedef Widget AnimatedSingleWidgetBuilder(
   Widget Function() defaultBuilder,
 );
 
+/// 单个包装的字符/数字依赖配置数据源
 class SingleDigitData {
+
   /// 单个字符容器尺寸大小。
   /// 如果为 null，则以数字 `0` 为字体宽高标准计算得到。
   ///
@@ -33,10 +35,11 @@ class SingleDigitData {
   /// 自定义内容 builder
   AnimatedSingleWidgetBuilder? builder;
 
-  bool syncContainerValueSize;
+  /// 是否使用文字本身的 Size 做为包装 Size
+  bool useTextSize;
 
-  ///
-  SingleDigitData({this.size, this.syncContainerValueSize = true, this.builder});
+  /// 单个包装的字符/数字依赖配置数据源
+  SingleDigitData({this.size, this.useTextSize = true, this.builder});
 
   @override
   bool operator ==(Object other) {
@@ -50,7 +53,10 @@ class SingleDigitData {
   int get hashCode => size.hashCode ^ builder.hashCode;
 }
 
+/// The [SingleDigitData] `DI` provider widget
 class SingleDigitProvider extends InheritedWidget {
+  
+  /// The [SingleDigitData] `DI` provider widget
   const SingleDigitProvider({
     Key? key,
     required this.data,
@@ -259,8 +265,11 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// Insert a symbol between the integer part and the fractional part.
   final String decimalSeparator;
 
+  /// The text to display in front of the counter.
+  final String? prefix;
+
   /// The text to display after the counter.
-  final String suffix;
+  final String? suffix;
 
   /// 自定义格式化
   ///
@@ -304,7 +313,8 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.digitSplitSymbol = ",",
     this.separatorDigits = 3,
     this.decimalSeparator = '.',
-    this.suffix = '',
+    this.prefix,
+    this.suffix,
     this.formatter,
     this.loop = false,
     this.singleBuilder,
@@ -345,10 +355,23 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   /// is negative number
   bool get isNegativeNumber => _value < 0;
 
+  /// see [MediaQueryData]
   MediaQueryData? _mediaQueryData;
+
+  /// see [SingleDigitData]
   SingleDigitData? _singleDigitData;
 
-  /// [didChangeDependencies]依赖发生改变时或触发 [reassemble] 时，会变更成 `true`
+  /// mark dirty, rebuild widget
+  /// 
+  /// 当触发以下回调时 
+  /// [reassemble],
+  /// [didChangeDependencies],
+  /// [didChangeTextScaleFactor]
+  /// [didChangeAccessibilityFeatures],
+  /// 将需要被重建，
+  /// 会通过 [_markNeedRebuild] 变更成 `true`，
+  /// 
+  /// 在 [build] 完成时，恢复为 `false`, 以待下次重建
   bool _dirty = false;
 
   @override
@@ -360,10 +383,12 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   String _getFormatValueAsString() {
-    var _val = _formatNum(_value.toString(), fractionDigits: widget.fractionDigits);
-    if (widget.suffix.isNotEmpty) {
-      _val = "$_val ${widget.suffix}";
-    }
+    var _val = _formatNum(
+      _value.toString(),
+      fractionDigits: widget.fractionDigits,
+    );
+    if (widget.prefix != null) _val = "${widget.prefix} $_val";
+    if (widget.suffix != null) _val = "$_val ${widget.suffix}";
     return _handlerCustomFormatter(_val);
   }
 
@@ -414,7 +439,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   String _formatNum(String numstr, {int fractionDigits = 2}) {
-    
     String result;
     final String _numstr =
         isNegativeNumber ? numstr.replaceFirst("-", "") : numstr;
@@ -422,7 +446,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
     if (!widget.enableDigitSplit && fractionDigits < 1) {
       result = numString.first;
-      
     }
     final List<String> digitList = List.from(numString.first.characters);
     if (widget.enableDigitSplit) {
@@ -657,10 +680,14 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   /// 初始化当前值的 Size | 指定的 Size
   Size _initSize() {
-    if (widget.singleDigitData?.size != null) {
-      return valueSize = widget.singleDigitData!.size!;
+    if (widget.singleDigitData != null) {
+      if (widget.singleDigitData!.size != null && data!.useTextSize) {
+        return valueSize = widget.singleDigitData!.size!;
+      }
     }
-    return valueSize = _getTextSize(currentValue);
+    // ## why use "0"? ##
+    // github：https://github.com/mingsnx/animated_digit/pull/3#issuecomment-1005552717
+    return valueSize = _getTextSize(isNumber ? "0" : currentValue);
   }
 
   /// 获取 [text] 的 Size
@@ -724,12 +751,11 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final syncUseValueSize = data?.syncContainerValueSize ?? true;
     return AbsorbPointer(
       absorbing: true,
       child: Container(
-        width: isNumber ? valueSize.width : syncUseValueSize ? valueSize.width : null,
-        height: isNumber ? valueSize.height : syncUseValueSize ? valueSize.height : null,
+        width: valueSize.width,
+        height: valueSize.height,
         decoration: _boxDecoration,
         alignment: Alignment.center,
         child: _build(),
