@@ -99,7 +99,7 @@ class _AnimatedDigitWidgetExampleState
               SizedBox(height: 20),
               SingleDigitProvider(
                 data: SingleDigitData(
-                  syncContainerValueSize: false,
+                  useTextSize: false,
                   size: Size.fromRadius(15),
                   builder: (size, value, isNumber, defaultBuilder) {
                     return isNumber ? defaultBuilder() : FlutterLogo(size: 20);
