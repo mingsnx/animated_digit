@@ -181,7 +181,7 @@ class _AnimatedDigitWidgetExampleState
       builder: (context, home) {
         return MediaQuery(
           data:
-              MediaQuery.of(context).copyWith(textScaleFactor: textscaleFactor),
+              MediaQuery.of(context),
           child: home!,
         );
       },

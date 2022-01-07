@@ -23,7 +23,6 @@ typedef Widget AnimatedSingleWidgetBuilder(
 
 /// 单个包装的字符/数字依赖配置数据源
 class SingleDigitData {
-
   /// 单个字符容器尺寸大小。
   /// 如果为 null，则以数字 `0` 为字体宽高标准计算得到。
   ///
@@ -55,7 +54,6 @@ class SingleDigitData {
 
 /// The [SingleDigitData] `DI` provider widget
 class SingleDigitProvider extends InheritedWidget {
-  
   /// The [SingleDigitData] `DI` provider widget
   const SingleDigitProvider({
     Key? key,
@@ -296,7 +294,14 @@ class AnimatedDigitWidget extends StatefulWidget {
   final bool loop;
 
   /// 自定义 single builder
-  /// 每一个数字，每一个字符
+  /// 每一个数字，每一个字符。
+  /// 整个 `AnimatedDigitWidget` 由 `value.length` 个 `Single-Widget` 组成，
+  /// 所以 `singleBuilder` 就不言而喻了。
+  ///
+  /// - @size [Size] 其尺寸大小受回调参数中的 `size` 约束，可以通过 [SingleDigitData] 来自定义 `size` 约束。
+  /// - @value [String] 参数为当前的 `Single-Widget` 中原本显示的值。
+  /// - @isNumber [bool] 用来判断当前的 `Single-Widget` 中的值是否是数字。
+  /// - @defaultBuilder [Function] 默认的 `Single-Widget` 的 build。
   final AnimatedSingleWidgetBuilder? singleBuilder;
 
   /// see [AnimatedDigitWidget]
@@ -362,15 +367,15 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   SingleDigitData? _singleDigitData;
 
   /// mark dirty, rebuild widget
-  /// 
-  /// 当触发以下回调时 
+  ///
+  /// 当触发以下回调时
   /// [reassemble],
   /// [didChangeDependencies],
   /// [didChangeTextScaleFactor]
   /// [didChangeAccessibilityFeatures],
   /// 将需要被重建，
   /// 会通过 [_markNeedRebuild] 变更成 `true`，
-  /// 
+  ///
   /// 在 [build] 完成时，恢复为 `false`, 以待下次重建
   bool _dirty = false;
 
@@ -451,10 +456,9 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     if (widget.enableDigitSplit) {
       int len = digitList.length - 1;
       final digitSplitSymbol = widget.digitSplitSymbol ?? "";
-      for (int index = 0, i = len; i >= 0; index++, i--) {
+      for (int index = 0, i = len; i >= 0; index++, i--)
         if (index % widget.separatorDigits == 0 && i != len)
-          digitList[i] = digitList[i] + digitSplitSymbol;
-      }
+          digitList[i] += digitSplitSymbol;
     }
     if (fractionDigits > 0) {
       List<String> fractionList = List.from(numString.last.characters);
@@ -541,6 +545,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       textStyle: widget.textStyle,
       boxDecoration: widget.boxDecoration,
       duration: widget.duration,
+      curve: widget.curve,
       textScaleFactor: _mediaQueryData?.textScaleFactor,
       singleDigitData: _singleDigitData,
       loop: widget.loop,
@@ -685,12 +690,37 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
         return valueSize = widget.singleDigitData!.size!;
       }
     }
-    // ## why use "0"? ##
-    // github：https://github.com/mingsnx/animated_digit/pull/3#issuecomment-1005552717
-    return valueSize = _getTextSize(isNumber ? "0" : currentValue);
+    return valueSize = _getTextSize(currentValue);
   }
 
-  /// 获取 [text] 的 Size
+  /// ## 获取 [text] 的 Size
+  /// 
+  /// ### why used `0` as the `Size` of digit ? ##
+  /// ```dart
+  /// Size _getTextSize(String text) {
+  ///   TextPainter painter = TextPainter(
+  ///     textDirection: TextDirection.ltr,
+  ///     text: TextSpan(
+  ///       text: text,
+  ///       style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+  ///     ),
+  ///     textScaleFactor: 1.0,
+  ///   );
+  ///   painter.layout();
+  ///   return painter.size;
+  /// }
+  /// for (var i = 0; i < 10; i++) {
+  ///   log("$i: ${_getTextSize(i.toString())}");
+  /// }
+  /// ```
+  /// **log result**
+  /// 
+  /// [![TxpgQs.png](https://s4.ax1x.com/2022/01/06/TxpgQs.png)](https://imgtu.com/i/TxpgQs)
+  /// 
+  /// ### when used `1` as the `Size` of digit:
+  /// [![Txp6zj.png](https://s4.ax1x.com/2022/01/06/Txp6zj.png)](https://imgtu.com/i/Txp6zj)
+  /// 
+  /// github：https://github.com/mingsnx/animated_digit/pull/3#issuecomment-1005552717
   Size _getTextSize(String text) {
     final window = WidgetsBinding.instance?.window ?? ui.window;
     final fontWeight = window.accessibilityFeatures.boldText
@@ -701,7 +731,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     TextPainter painter = TextPainter(
       textDirection: TextDirection.ltr,
       text: TextSpan(
-        text: text,
+        text: isNumber ? "0" : text,
         style: _textStyle.copyWith(fontWeight: fontWeight),
       ),
       textScaleFactor: widget.textScaleFactor ?? window.textScaleFactor,
