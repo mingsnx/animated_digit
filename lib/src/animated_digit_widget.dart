@@ -296,12 +296,12 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// 自适应调整 digit/symbol 文本的大小，
   /// 只在未自定义 Size 的情况下有效 `SingleDigitData.size == null`
   ///
-  /// digit/symbol adaptive resizing, 
+  /// digit/symbol adaptive resizing,
   /// Only valid without custom Size `SingleDigitData.size == null`
   final bool autoSize;
 
   /// 在自适应调整 digit/symbol 文本的大小的时候是否是动画的
-  /// 
+  ///
   /// Use animate when digit/symbol text adaptively resizing.
   final bool animateAutoSize;
 
@@ -629,7 +629,8 @@ class _AnimatedSingleWidget extends StatefulWidget {
   }
 }
 
-class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with SingleTickerProviderStateMixin {
+class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
+    with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -822,7 +823,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with Singl
     if (widget.autoSize && widget.animateAutoSize) {
       child = AnimatedSize(
         child: child,
-        duration: _duration, 
+        duration: _duration,
         vsync: this,
       );
     }
