@@ -293,6 +293,18 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// 则是向 **`↓`** 滚动 `9 ~ 1` 之间的距离 `(10 - 9 + 1) * 30`
   final bool loop;
 
+  /// 自适应调整 digit/symbol 文本的大小，
+  /// 只在未自定义 Size 的情况下有效 `SingleDigitData.size == null`
+  ///
+  /// digit/symbol adaptive resizing, 
+  /// Only valid without custom Size `SingleDigitData.size == null`
+  final bool autoSize;
+
+  /// 在自适应调整 digit/symbol 文本的大小的时候是否是动画的
+  /// 
+  /// Use animate when digit/symbol text adaptively resizing.
+  final bool animateAutoSize;
+
   /// 自定义 single builder
   /// 每一个数字，每一个字符。
   /// 整个 `AnimatedDigitWidget` 由 `value.length` 个 `Single-Widget` 组成，
@@ -322,6 +334,8 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.suffix,
     this.formatter,
     this.loop = false,
+    this.autoSize = false,
+    this.animateAutoSize = false,
     this.singleBuilder,
   })  : assert(separatorDigits >= 1,
             "@separatorDigits at least greater than or equal to 1"),
@@ -411,6 +425,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   void _markNeedRebuild() {
     _widgets.clear();
     _dirty = true;
+    _updateValue();
   }
 
   @override
@@ -519,16 +534,18 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   void _update() {
     String newValue = _getFormatValueAsString();
-    if (newValue.length != _oldValue.length) {
-      _rebuild(newValue);
-      return;
-    }
-    for (var i = 0; i < newValue.length; i++) {
-      final String old = _oldValue[i];
-      final String curr = newValue[i];
-      if (old != curr) {
-        _setValue(_widgets[i].key, curr);
+    final int lenNew = newValue.length;
+    final int lenOld = _oldValue.length;
+    if (lenNew == lenOld) {
+      for (var i = 0; i < lenNew; i++) {
+        final String old = _oldValue[i];
+        final String curr = newValue[i];
+        if (old != curr) {
+          _setValue(_widgets[i].key, curr);
+        }
       }
+    } else {
+      _rebuild(newValue);
     }
   }
 
@@ -549,6 +566,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       textScaleFactor: _mediaQueryData?.textScaleFactor,
       singleDigitData: _singleDigitData,
       loop: widget.loop,
+      autoSize: widget.autoSize,
+      animateAutoSize: widget.animateAutoSize,
       singleBuilder: widget.singleBuilder,
     ));
   }
@@ -581,7 +600,11 @@ class _AnimatedSingleWidget extends StatefulWidget {
 
   final SingleDigitData? singleDigitData;
 
-  final bool? loop;
+  final bool loop;
+
+  final bool autoSize;
+
+  final bool animateAutoSize;
 
   /// The [MediaQueryData] in textScaleFactor
   final AnimatedSingleWidgetBuilder? singleBuilder;
@@ -594,7 +617,9 @@ class _AnimatedSingleWidget extends StatefulWidget {
     this.textStyle,
     this.textScaleFactor,
     this.singleDigitData,
-    this.loop,
+    this.loop = false,
+    this.autoSize = false,
+    this.animateAutoSize = false,
     this.singleBuilder,
   }) : super(key: GlobalKey<_AnimatedSingleWidgetState>());
 
@@ -604,7 +629,7 @@ class _AnimatedSingleWidget extends StatefulWidget {
   }
 }
 
-class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
+class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -616,8 +641,10 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   SingleDigitData? data;
 
+  bool get canAutoSize => data?.size == null;
+
   /// see [AnimatedDigitWidget.loop]
-  late final bool loop = widget.loop ?? false;
+  bool get loop => widget.loop;
 
   /// text style
   late final TextStyle _textStyle = widget.textStyle ??
@@ -659,6 +686,10 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     oldValue = _currentValue;
     _currentValue = val;
     _checkValue();
+    if (canAutoSize && widget.autoSize) {
+      _initSize();
+      setState(() {});
+    }
   }
 
   /// 设置一个新的值
@@ -694,7 +725,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   }
 
   /// ## 获取 [text] 的 Size
-  /// 
+  ///
   /// ### why used `0` as the `Size` of digit ? ##
   /// ```dart
   /// Size _getTextSize(String text) {
@@ -714,12 +745,12 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   /// }
   /// ```
   /// **log result**
-  /// 
+  ///
   /// [![TxpgQs.png](https://s4.ax1x.com/2022/01/06/TxpgQs.png)](https://imgtu.com/i/TxpgQs)
-  /// 
+  ///
   /// ### when used `1` as the `Size` of digit:
   /// [![Txp6zj.png](https://s4.ax1x.com/2022/01/06/Txp6zj.png)](https://imgtu.com/i/Txp6zj)
-  /// 
+  ///
   /// github：https://github.com/mingsnx/animated_digit/pull/3#issuecomment-1005552717
   Size _getTextSize(String text) {
     final window = WidgetsBinding.instance?.window ?? ui.window;
@@ -731,7 +762,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     TextPainter painter = TextPainter(
       textDirection: TextDirection.ltr,
       text: TextSpan(
-        text: isNumber ? "0" : text,
+        text: widget.autoSize ? text : (isNumber ? "0" : text),
         style: _textStyle.copyWith(fontWeight: fontWeight),
       ),
       textScaleFactor: widget.textScaleFactor ?? window.textScaleFactor,
@@ -781,15 +812,23 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Widget child = Container(
+      width: valueSize.width,
+      height: valueSize.height,
+      decoration: _boxDecoration,
+      alignment: Alignment.center,
+      child: _build(),
+    );
+    if (widget.autoSize && widget.animateAutoSize) {
+      child = AnimatedSize(
+        child: child,
+        duration: _duration, 
+        vsync: this,
+      );
+    }
     return AbsorbPointer(
       absorbing: true,
-      child: Container(
-        width: valueSize.width,
-        height: valueSize.height,
-        decoration: _boxDecoration,
-        alignment: Alignment.center,
-        child: _build(),
-      ),
+      child: child,
     );
   }
 
@@ -840,8 +879,8 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     } else {
       child = defaultBuiled();
     }
-    if (isNumber) {
-      child = SizedBox.fromSize(
+    if (!widget.autoSize && isNumber) {
+      return SizedBox.fromSize(
         size: valueSize,
         child: child,
       );

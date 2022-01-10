@@ -17,9 +17,9 @@ class AnimatedDigitWidgetExample extends StatefulWidget {
 }
 
 class _AnimatedDigitWidgetExampleState
-    extends State<AnimatedDigitWidgetExample> {
+    extends State<AnimatedDigitWidgetExample> with SingleTickerProviderStateMixin {
   AnimatedDigitController _controller =
-      AnimatedDigitController(DateTime.now().year);
+      AnimatedDigitController(1111);
 
   double textscaleFactor = 1.0;
 
@@ -38,15 +38,24 @@ class _AnimatedDigitWidgetExampleState
   void _add() {
     _controller.addValue(Random().nextInt(DateTime.now().year + 1));
   }
+  
+  void _remove(){
+    _controller.addValue(-Random().nextInt(DateTime.now().year));
+  }
 
   void _reset() {
-    _controller.resetValue(DateTime.now().year);
+    _controller.resetValue(0);
   }
 
   void updateFontScale() {
     setState(() {
-      textscaleFactor = textscaleFactor == 1.0 ? 1.5 : 1.0;
+      textscaleFactor = textscaleFactor == 1.0 ? 1.2 : 1.0;
     });
+  }
+
+  void _addDecimal(){
+    var val = num.parse(Random().nextDouble().toStringAsFixed(2));
+    _controller.addValue(val);
   }
 
   @override
@@ -69,6 +78,8 @@ class _AnimatedDigitWidgetExampleState
               AnimatedDigitWidget(
                 controller: _controller,
                 loop: true,
+                duration: Duration(seconds: 1),
+                curve: Curves.easeOutCubic,
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -76,6 +87,7 @@ class _AnimatedDigitWidgetExampleState
                 textStyle: TextStyle(color: Colors.orange[200], fontSize: 30),
                 enableDigitSplit: true,
                 duration: const Duration(milliseconds: 500),
+                autoSize: true,
                 loop: true,
               ),
               SizedBox(height: 20),
@@ -84,6 +96,8 @@ class _AnimatedDigitWidgetExampleState
                 textStyle: TextStyle(color: Colors.purple[200], fontSize: 30),
                 fractionDigits: 2,
                 enableDigitSplit: true,
+                autoSize: true,
+                animateAutoSize: true,
                 duration: const Duration(milliseconds: 500),
               ),
               SizedBox(height: 20),
@@ -94,6 +108,8 @@ class _AnimatedDigitWidgetExampleState
                 digitSplitSymbol: "#",
                 enableDigitSplit: true,
                 loop: true,
+                autoSize: true,
+                animateAutoSize: true,
                 duration: const Duration(seconds: 1),
               ),
               SizedBox(height: 20),
@@ -134,6 +150,8 @@ class _AnimatedDigitWidgetExampleState
                 textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30),
                 suffix: "& ${DateTime.now().year + 1}",
                 duration: const Duration(seconds: 1),
+                autoSize: true,
+                animateAutoSize: true,
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -144,6 +162,8 @@ class _AnimatedDigitWidgetExampleState
                 digitSplitSymbol: "·",
                 separatorDigits: 3,
                 decimalSeparator: ".",
+                autoSize: true,
+                animateAutoSize: true,
                 loop: true,
                 boxDecoration:
                     BoxDecoration(color: Colors.yellowAccent.shade400),
@@ -175,13 +195,27 @@ class _AnimatedDigitWidgetExampleState
               onPressed: _reset,
               child: Icon(Icons.restart_alt),
             ),
+            SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton(
+              onPressed: _remove,
+              child: Icon(Icons.remove),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton(
+              onPressed: _addDecimal,
+              child: Icon(Icons.add_box_outlined),
+              tooltip: "add decimal",
+            ),
           ],
         ),
       ),
       builder: (context, home) {
         return MediaQuery(
-          data:
-              MediaQuery.of(context),
+          data: MediaQuery.of(context).copyWith(textScaleFactor: textscaleFactor),
           child: home!,
         );
       },

@@ -53,6 +53,15 @@ SingleDigitProvider(
 ```
 [![TOrgbj.png](https://s4.ax1x.com/2022/01/04/TOrgbj.png)](https://imgtu.com/i/TOrgbj)
 
+* added `autoSize` (default `false`). 
+
+**resolve** https://github.com/mingsnx/animated_digit/pull/3#issuecomment-1005552717
+
+[![7EOszV.md.gif](https://s4.ax1x.com/2022/01/10/7EOszV.md.gif)](https://imgtu.com/i/7EOszV)
+
+* added `animateAutoSize` (default `false`)
+
+
 ## [2.2.0] - publish 2.2.0
 * 2.2.0 release
 * ✅ null-safety Version!.
