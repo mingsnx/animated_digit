@@ -1,4 +1,4 @@
-import 'dart:ui' as ui;
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ typedef Widget AnimatedSingleWidgetBuilder(
   Size size,
   String value,
   bool isNumber,
-  Widget Function() defaultBuilder,
+  Widget child,
 );
 
 /// 单个包装的字符/数字依赖配置数据源
@@ -335,7 +335,7 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.formatter,
     this.loop = false,
     this.autoSize = false,
-    this.animateAutoSize = false,
+    this.animateAutoSize = true,
     this.singleBuilder,
   })  : assert(separatorDigits >= 1,
             "@separatorDigits at least greater than or equal to 1"),
@@ -467,7 +467,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     if (!widget.enableDigitSplit && fractionDigits < 1) {
       result = numString.first;
     }
-    final List<String> digitList = List.from(numString.first.characters);
+    final List<String> digitList =
+        List.from(numString.first.characters, growable: false);
     if (widget.enableDigitSplit) {
       int len = digitList.length - 1;
       final digitSplitSymbol = widget.digitSplitSymbol ?? "";
@@ -485,15 +486,16 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
         //Equivalent to `padRight(padRightLen, "0")`
         fractionList.addAll(List.generate(padRightLen, (index) => "0"));
       }
-      final strbuff = StringBuffer();
-      strbuff.writeAll(digitList);
-      strbuff.write(widget.decimalSeparator);
-      strbuff.writeAll(fractionList);
+      final strbuff = StringBuffer()
+        ..writeAll(digitList)
+        ..write(widget.decimalSeparator)
+        ..writeAll(fractionList);
       result = strbuff.toString();
     } else {
       result = digitList.join('');
     }
-    return (isNegativeNumber ? "-" : "") + result;
+    if (isNegativeNumber) result = "-" + result;
+    return result;
   }
 
   @override
@@ -521,7 +523,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       _update();
     }
     _dirty = false;
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: _widgets);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: _widgets,
+    );
   }
 
   void _rebuild([String? value]) {
@@ -538,11 +543,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     final int lenOld = _oldValue.length;
     if (lenNew == lenOld) {
       for (var i = 0; i < lenNew; i++) {
-        final String old = _oldValue[i];
         final String curr = newValue[i];
-        if (old != curr) {
-          _setValue(_widgets[i].key, curr);
-        }
+        _setValue(_widgets[i].key, curr);
       }
     } else {
       _rebuild(newValue);
@@ -557,7 +559,11 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   void _addAnimatedSingleWidget(String value) {
-    _widgets.add(_AnimatedSingleWidget(
+    _widgets.add(_buildSingleWidget(value));
+  }
+
+  _AnimatedSingleWidget _buildSingleWidget(String value) {
+    return _AnimatedSingleWidget(
       initialValue: value,
       textStyle: widget.textStyle,
       boxDecoration: widget.boxDecoration,
@@ -569,7 +575,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       autoSize: widget.autoSize,
       animateAutoSize: widget.animateAutoSize,
       singleBuilder: widget.singleBuilder,
-    ));
+    );
   }
 
   @override
@@ -629,8 +635,7 @@ class _AnimatedSingleWidget extends StatefulWidget {
   }
 }
 
-class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
-    with SingleTickerProviderStateMixin {
+class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   @override
   void initState() {
     super.initState();
@@ -726,35 +731,8 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
   }
 
   /// ## 获取 [text] 的 Size
-  ///
-  /// ### why used `0` as the `Size` of digit ? ##
-  /// ```dart
-  /// Size _getTextSize(String text) {
-  ///   TextPainter painter = TextPainter(
-  ///     textDirection: TextDirection.ltr,
-  ///     text: TextSpan(
-  ///       text: text,
-  ///       style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
-  ///     ),
-  ///     textScaleFactor: 1.0,
-  ///   );
-  ///   painter.layout();
-  ///   return painter.size;
-  /// }
-  /// for (var i = 0; i < 10; i++) {
-  ///   log("$i: ${_getTextSize(i.toString())}");
-  /// }
-  /// ```
-  /// **log result**
-  ///
-  /// [![TxpgQs.png](https://s4.ax1x.com/2022/01/06/TxpgQs.png)](https://imgtu.com/i/TxpgQs)
-  ///
-  /// ### when used `1` as the `Size` of digit:
-  /// [![Txp6zj.png](https://s4.ax1x.com/2022/01/06/Txp6zj.png)](https://imgtu.com/i/Txp6zj)
-  ///
-  /// github：https://github.com/mingsnx/animated_digit/pull/3#issuecomment-1005552717
   Size _getTextSize(String text) {
-    final window = WidgetsBinding.instance?.window ?? ui.window;
+    final window = WidgetsBinding.instance!.window;
     final fontWeight = window.accessibilityFeatures.boldText
         ? FontWeight.bold
         : _textStyle.fontWeight == FontWeight.bold
@@ -774,7 +752,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
 
   /// 动画滚动到当前的数字
   void _animateTo() {
-    if (isNumber) {
+    if (isNumber && oldValue != currentValue) {
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         if (scrollController.hasClients) {
           _scrollTo();
@@ -784,9 +762,9 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
   }
 
   /// 滚动到距离 [scrollOffset]
-  Future<void> _scrollTo() {
+  Future<void> _scrollTo() async {
     _computeScrollOffset();
-    return scrollController.animateTo(
+    await scrollController.animateTo(
       scrollOffset,
       duration: _duration,
       curve: _curve,
@@ -795,11 +773,14 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
 
   /// 计算需要滚动的距离 [scrollOffset]
   void _computeScrollOffset() {
-    final int n = int.parse(currentValue);
+    final int? n = int.tryParse(currentValue);
+    if (n == null) return;
     if (loop) {
-      final int c = int.parse(oldValue);
-      final value = c > n ? 10 - c + n : n - c;
-      scrollOffset += value * valueSize.height;
+      final int? c = int.tryParse(oldValue);
+      if (c != null) {
+        final value = c > n ? 10 - c + n : n - c;
+        scrollOffset += value * valueSize.height;
+      }
     } else {
       scrollOffset = n * valueSize.height;
     }
@@ -813,18 +794,24 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = Container(
-      width: valueSize.width,
-      height: valueSize.height,
-      decoration: _boxDecoration,
-      alignment: Alignment.center,
+    late Widget child = Center(
+      widthFactor: 1.0,
       child: _build(),
     );
     if (widget.autoSize && widget.animateAutoSize) {
-      child = AnimatedSize(
+      child = AnimatedContainer(
+        width: valueSize.width,
+        height: valueSize.height,
+        decoration: _boxDecoration,
         child: child,
         duration: _duration,
-        vsync: this,
+      );
+    } else {
+      child = Container(
+        width: valueSize.width,
+        height: valueSize.height,
+        decoration: _boxDecoration,
+        child: child,
       );
     }
     return AbsorbPointer(
@@ -864,27 +851,16 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget>
 
   /// 默认的构建单个 Widget 的内容
   Widget defaultBuildSingleWidget(String val) {
-    return Center(
-      child: Text(val, style: _textStyle),
-    );
+    return Text(val, style: _textStyle);
   }
 
   /// 根据配置构建单个 Widget 的内容
   Widget _buildSingleWidget(String val) {
-    Widget defaultBuiled() => defaultBuildSingleWidget(val);
-    late Widget child;
+    Widget child = defaultBuildSingleWidget(val);
     if (data?.builder != null) {
-      child = data!.builder!(valueSize, val, isNumber, defaultBuiled);
+      child = data!.builder!(valueSize, val, isNumber, child);
     } else if (widget.singleBuilder != null) {
-      child = widget.singleBuilder!(valueSize, val, isNumber, defaultBuiled);
-    } else {
-      child = defaultBuiled();
-    }
-    if (!widget.autoSize && isNumber) {
-      return SizedBox.fromSize(
-        size: valueSize,
-        child: child,
-      );
+      child = widget.singleBuilder!(valueSize, val, isNumber, child);
     }
     return child;
   }

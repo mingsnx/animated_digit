@@ -1,3 +1,8 @@
+## [3.0.1] - publish 3.0.1
+* 3.0.1 release
+* 优化自动缩放动画
+* Optimization autoSize animation
+
 ## [3.0.0] - publish 3.0.0
 * 3.0.0 release
 * added `loop` (default `false`), example:

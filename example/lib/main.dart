@@ -16,10 +16,9 @@ class AnimatedDigitWidgetExample extends StatefulWidget {
       _AnimatedDigitWidgetExampleState();
 }
 
-class _AnimatedDigitWidgetExampleState
-    extends State<AnimatedDigitWidgetExample> with SingleTickerProviderStateMixin {
-  AnimatedDigitController _controller =
-      AnimatedDigitController(1111);
+class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
+    with SingleTickerProviderStateMixin {
+  AnimatedDigitController _controller = AnimatedDigitController(1111);
 
   double textscaleFactor = 1.0;
 
@@ -38,8 +37,8 @@ class _AnimatedDigitWidgetExampleState
   void _add() {
     _controller.addValue(Random().nextInt(DateTime.now().year + 1));
   }
-  
-  void _remove(){
+
+  void _remove() {
     _controller.addValue(-Random().nextInt(DateTime.now().year));
   }
 
@@ -53,7 +52,7 @@ class _AnimatedDigitWidgetExampleState
     });
   }
 
-  void _addDecimal(){
+  void _addDecimal() {
     var val = num.parse(Random().nextDouble().toStringAsFixed(2));
     _controller.addValue(val);
   }
@@ -61,6 +60,7 @@ class _AnimatedDigitWidgetExampleState
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      showPerformanceOverlay: true,
       home: Scaffold(
         appBar: AppBar(
           title: Text("Animated Digit Widget Example"),
@@ -78,16 +78,19 @@ class _AnimatedDigitWidgetExampleState
               AnimatedDigitWidget(
                 controller: _controller,
                 loop: true,
-                duration: Duration(seconds: 1),
+                duration: Duration(milliseconds: 520),
                 curve: Curves.easeOutCubic,
+                autoSize: true,
+                animateAutoSize: true,
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.orange[200], fontSize: 30),
                 enableDigitSplit: true,
-                duration: const Duration(milliseconds: 500),
+                duration: Duration(milliseconds: 520),
                 autoSize: true,
+                animateAutoSize: true,
                 loop: true,
               ),
               SizedBox(height: 20),
@@ -98,7 +101,7 @@ class _AnimatedDigitWidgetExampleState
                 enableDigitSplit: true,
                 autoSize: true,
                 animateAutoSize: true,
-                duration: const Duration(milliseconds: 500),
+                duration: Duration(milliseconds: 520),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -110,15 +113,15 @@ class _AnimatedDigitWidgetExampleState
                 loop: true,
                 autoSize: true,
                 animateAutoSize: true,
-                duration: const Duration(seconds: 1),
+                duration: Duration(milliseconds: 520),
               ),
               SizedBox(height: 20),
               SingleDigitProvider(
                 data: SingleDigitData(
                   useTextSize: false,
                   size: Size.fromRadius(15),
-                  builder: (size, value, isNumber, defaultBuilder) {
-                    return isNumber ? defaultBuilder() : FlutterLogo(size: 20);
+                  builder: (size, value, isNumber, child) {
+                    return isNumber ? child : FlutterLogo(size: 20);
                   },
                 ),
                 child: AnimatedDigitWidget(
@@ -128,7 +131,7 @@ class _AnimatedDigitWidgetExampleState
                   digitSplitSymbol: "#",
                   enableDigitSplit: true,
                   loop: true,
-                  duration: const Duration(seconds: 1),
+                  duration: const Duration(milliseconds: 520),
                 ),
               ),
               SizedBox(height: 20),
@@ -139,17 +142,17 @@ class _AnimatedDigitWidgetExampleState
                 digitSplitSymbol: "#",
                 enableDigitSplit: true,
                 loop: true,
-                singleBuilder: (size, value, isNumber, defaultBuilder) {
-                  return isNumber ? defaultBuilder() : FlutterLogo();
+                singleBuilder: (size, value, isNumber, child) {
+                  return isNumber ? child : FlutterLogo();
                 },
-                duration: const Duration(seconds: 1),
+                duration: const Duration(milliseconds: 520),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30),
                 suffix: "& ${DateTime.now().year + 1}",
-                duration: const Duration(seconds: 1),
+                duration: const Duration(milliseconds: 520),
                 autoSize: true,
                 animateAutoSize: true,
               ),
@@ -215,7 +218,8 @@ class _AnimatedDigitWidgetExampleState
       ),
       builder: (context, home) {
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: textscaleFactor),
+          data:
+              MediaQuery.of(context).copyWith(textScaleFactor: textscaleFactor),
           child: home!,
         );
       },
