@@ -39,11 +39,11 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
   }
 
   void _remove() {
-    _controller.addValue(-Random().nextInt(DateTime.now().year));
+    _controller.minusValue(Random().nextInt(DateTime.now().year));
   }
 
   void _reset() {
-    _controller.resetValue(0);
+    _controller.resetValue(12531.98);
   }
 
   void updateFontScale() {
@@ -69,10 +69,13 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              AnimatedDigitWidget(
-                value: DateTime.now().year,
-                textStyle: TextStyle(color: Colors.red.shade500, fontSize: 25),
-                formatter: (val) => "Hello $val ~ ",
+              SingleDigitProvider(
+                data: SingleDigitData(
+                  formatter: (val) => "Hello $val ~ ",
+                ),
+                child: AnimatedDigitWidget(
+                  value: DateTime.now().year,
+                ),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -87,7 +90,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
               AnimatedDigitWidget(
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.orange[200], fontSize: 30),
-                enableDigitSplit: true,
+                enableSeparator: true,
                 duration: Duration(milliseconds: 520),
                 autoSize: true,
                 animateAutoSize: true,
@@ -98,7 +101,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.purple[200], fontSize: 30),
                 fractionDigits: 2,
-                enableDigitSplit: true,
+                enableSeparator: true,
                 autoSize: true,
                 animateAutoSize: true,
                 duration: Duration(milliseconds: 520),
@@ -107,9 +110,9 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
               AnimatedDigitWidget(
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
-                separatorDigits: 1,
-                digitSplitSymbol: "#",
-                enableDigitSplit: true,
+                separateLength: 1,
+                separateSymbol: "#",
+                enableSeparator: true,
                 loop: true,
                 autoSize: true,
                 animateAutoSize: true,
@@ -127,25 +130,30 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 child: AnimatedDigitWidget(
                   controller: _controller,
                   textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
-                  separatorDigits: 1,
-                  digitSplitSymbol: "#",
-                  enableDigitSplit: true,
+                  separateLength: 1,
+                  separateSymbol: "#",
+                  enableSeparator: true,
                   loop: true,
                   duration: const Duration(milliseconds: 520),
                 ),
               ),
               SizedBox(height: 20),
-              AnimatedDigitWidget(
-                controller: _controller,
-                textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
-                separatorDigits: 1,
-                digitSplitSymbol: "#",
-                enableDigitSplit: true,
-                loop: true,
-                singleBuilder: (size, value, isNumber, child) {
-                  return isNumber ? child : FlutterLogo();
-                },
-                duration: const Duration(milliseconds: 520),
+              SingleDigitProvider(
+                data: SingleDigitData(
+                  useTextSize: true,
+                  builder: (size, value, isNumber, child) {
+                    return isNumber ? child : FlutterLogo();
+                  },
+                ),
+                child: AnimatedDigitWidget(
+                  controller: _controller,
+                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+                  separateLength: 1,
+                  separateSymbol: "#",
+                  enableSeparator: true,
+                  loop: true,
+                  duration: const Duration(milliseconds: 520),
+                ),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
@@ -159,20 +167,14 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
-                textStyle: TextStyle(color: Colors.white, fontSize: 30),
+                textStyle: TextStyle(color: Colors.orangeAccent.shade700, fontSize: 30),
                 fractionDigits: 2,
-                enableDigitSplit: true,
-                digitSplitSymbol: "·",
-                separatorDigits: 3,
-                decimalSeparator: ".",
-                autoSize: true,
-                animateAutoSize: true,
-                loop: true,
-                boxDecoration:
-                    BoxDecoration(color: Colors.yellowAccent.shade400),
-                formatter: (val) => "\$$val",
-                curve: Curves.easeIn,
-                duration: const Duration(milliseconds: 500),
+                enableSeparator: true,
+                separateSymbol: "·",
+                separateLength: 3,
+                decimalSeparator: ",",
+                prefix: "\$",
+                suffix: "€",
               ),
             ],
           ),

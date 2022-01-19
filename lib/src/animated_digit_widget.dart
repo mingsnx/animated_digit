@@ -32,18 +32,37 @@ class SingleDigitData {
   Size? size;
 
   /// 自定义内容 builder
+  /// 每一个数字，每一个字符。
+  /// 整个 `AnimatedDigitWidget` 由 `value.length` 个 `Single-Widget` 组成，
+  /// 所以 `singleBuilder` 就不言而喻了。
+  ///
+  /// - @size [Size] 其尺寸大小受回调参数中的 `size` 约束，可以通过 [SingleDigitData] 来自定义 `size` 约束。
+  /// - @value [String] 参数为当前的 `Single-Widget` 中原本显示的值。
+  /// - @isNumber [bool] 用来判断当前的 `Single-Widget` 中的值是否是数字。
+  /// - @child [Widget] 默认的 `Single-Widget` 的 build child。
   AnimatedSingleWidgetBuilder? builder;
+
+  /// 自定义格式化
+  FormatValue? formatter;
 
   /// 是否使用文字本身的 Size 做为包装 Size
   bool useTextSize;
 
   /// 单个包装的字符/数字依赖配置数据源
-  SingleDigitData({this.size, this.useTextSize = true, this.builder});
+  SingleDigitData({
+    this.size,
+    this.useTextSize = false,
+    this.builder,
+    this.formatter,
+  });
 
   @override
   bool operator ==(Object other) {
     if (other is SingleDigitData) {
-      return other.size == this.size && other.builder == this.builder;
+      return other.size == this.size &&
+          other.builder == this.builder &&
+          other.useTextSize == this.useTextSize &&
+          other.formatter == this.formatter;
     }
     return false;
   }
@@ -114,7 +133,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
     super.dispose();
   }
 
-  /// ### 累加数字 | add value
+  /// ### 累加数字 | plus value
   ///
   /// ### **⚠️注意⚠️**
   /// * 由于 dart 在 web 中的 int 上限值原因
@@ -142,6 +161,26 @@ class AnimatedDigitController extends ValueNotifier<num> {
     }
   }
 
+  /// minus value
+  void minusValue(num newValue) {
+    if (!_dispose) {
+      value = NPms.minus(value, newValue);
+    }
+  }
+
+  /// times value
+  void timesValue(num newValue) {
+    if (!_dispose) {
+      value = NPms.times(value, newValue);
+    }
+  }
+
+  /// divide value
+  void divideValue(num newValue) {
+    if (!_dispose) {
+      value = NPms.divide(value, newValue);
+    }
+  }
   /// #### 重置数字 | reset value
   ///
   /// ```
@@ -168,6 +207,12 @@ class AnimatedDigitController extends ValueNotifier<num> {
 /// - - - - - - - - - - - - - - - - -
 /// // easy
 /// AnimatedDigitWidget(value: 1314)
+/// // easy 2
+/// AnimatedDigitWidget(
+///   value: 1314,
+///   loop: true,
+///   autoSize: true,
+/// )
 /// - - - - - - - - - - - - - - - - -
 ///
 /// 2.
@@ -180,7 +225,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
 ///   controller: _controller,
 ///   textStyle: TextStyle(color: Color(0xff009668)),
 ///   fractionDigits: 2, // 带两位小数
-///   enableDigitSplit: true, // 启用千位数字分隔符
+///   enableSeparator: true, // 启用千位数字分隔符
 /// )
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// ```
@@ -220,7 +265,7 @@ class AnimatedDigitWidget extends StatefulWidget {
 
   /// 小数位(1000520.987)
   ///
-  /// `<= 0` => 1000520;
+  /// `0` => 1000520;
   ///
   /// `1` => 1000520.9;
   ///
@@ -233,18 +278,20 @@ class AnimatedDigitWidget extends StatefulWidget {
 
   /// 启用数字分隔符 `1000520.99` | `1,000,520.99`
   ///
+  /// see [separateLength] and [separateSymbol]
+  ///
   /// enable number separator
-  final bool enableDigitSplit;
+  final bool enableSeparator;
 
-  /// Default thousands separator [`enableDigitSplit` = `false`] invalid,
-  /// Other digits can be used `separatorDigits`,
+  /// Default thousands separator [`enableSeparator` = `false`] invalid,
+  /// Other digits can be used `separateLength`,
   ///
-  /// assert [separatorDigits] at least greater than or equal to 1
+  /// assert [separateLength] at least greater than or equal to 1
   ///
-  /// 数字千分位分隔符号, [`enableDigitSplit` = `false`]时无效,
-  /// 其他位数可以使用 `separatorDigits`，
+  /// 数字千分位分隔符号, [`enableSeparator` = `false`]时无效,
+  /// 其他位数可以使用 `separateLength`，
   ///
-  /// 断言 [separatorDigits] 最小不能低于 1，可以等于
+  /// 断言 [separateLength] 最小不能低于 1，可以等于
   ///
   /// `,` => `1,000,520.99`
   ///
@@ -252,13 +299,13 @@ class AnimatedDigitWidget extends StatefulWidget {
   ///
   /// `-` => `1-000-520.99`
   ///
-  final String? digitSplitSymbol;
+  final String? separateSymbol;
 
-  /// Separator digits, the default is thousands separator and at least greater than or equal to 1
+  /// Separate length, the default is thousands separator and at least greater than or equal to 1
   ///
-  /// 数字分隔位数, 默认为千分位
+  /// 数字分隔位数, 默认为千分位(3)
   ///
-  final int separatorDigits;
+  final int separateLength;
 
   /// Insert a symbol between the integer part and the fractional part.
   final String decimalSeparator;
@@ -268,19 +315,6 @@ class AnimatedDigitWidget extends StatefulWidget {
 
   /// The text to display after the counter.
   final String? suffix;
-
-  /// 自定义格式化
-  ///
-  /// custom format
-  ///
-  /// ```dart
-  /// AnimatedDigitWidget(
-  ///   value: 2021,
-  ///   formatter: (val) => "Hello ~ $val", // val is default display result
-  /// ),
-  /// // => Hello ~ 2021
-  /// ```
-  final FormatValue? formatter;
 
   /// 数字采用循环滚动。
   ///
@@ -305,17 +339,6 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// Use animate when digit/symbol text adaptively resizing.
   final bool animateAutoSize;
 
-  /// 自定义 single builder
-  /// 每一个数字，每一个字符。
-  /// 整个 `AnimatedDigitWidget` 由 `value.length` 个 `Single-Widget` 组成，
-  /// 所以 `singleBuilder` 就不言而喻了。
-  ///
-  /// - @size [Size] 其尺寸大小受回调参数中的 `size` 约束，可以通过 [SingleDigitData] 来自定义 `size` 约束。
-  /// - @value [String] 参数为当前的 `Single-Widget` 中原本显示的值。
-  /// - @isNumber [bool] 用来判断当前的 `Single-Widget` 中的值是否是数字。
-  /// - @defaultBuilder [Function] 默认的 `Single-Widget` 的 build。
-  final AnimatedSingleWidgetBuilder? singleBuilder;
-
   /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({
     Key? key,
@@ -326,19 +349,17 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.curve = Curves.easeInOut,
     this.boxDecoration,
     this.fractionDigits = 0,
-    this.enableDigitSplit = false,
-    this.digitSplitSymbol = ",",
-    this.separatorDigits = 3,
+    this.enableSeparator = false,
+    this.separateSymbol = ",",
+    this.separateLength = 3,
     this.decimalSeparator = '.',
     this.prefix,
     this.suffix,
-    this.formatter,
-    this.loop = false,
-    this.autoSize = false,
+    this.loop = true,
+    this.autoSize = true,
     this.animateAutoSize = true,
-    this.singleBuilder,
-  })  : assert(separatorDigits >= 1,
-            "@separatorDigits at least greater than or equal to 1"),
+  })  : assert(separateLength >= 1,
+            "@separateLength at least greater than or equal to 1"),
         assert(!(value == null && controller == null),
             "the @value & @controller cannot be null at the same time"),
         super(key: key);
@@ -372,7 +393,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   /// is negative number
-  bool get isNegativeNumber => _value < 0;
+  bool get isNegativeNumber => _value.isNegative;
 
   /// see [MediaQueryData]
   MediaQueryData? _mediaQueryData;
@@ -412,10 +433,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   String _handlerCustomFormatter(String val) {
-    if (widget.formatter == null) {
+    if (_singleDigitData?.formatter == null) {
       return val;
     }
-    return widget.formatter!(val);
+    return _singleDigitData!.formatter!(val);
   }
 
   void _updateValue() {
@@ -464,17 +485,17 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
         isNegativeNumber ? numstr.replaceFirst("-", "") : numstr;
     final List<String> numString = double.parse(_numstr).toString().split('.');
 
-    if (!widget.enableDigitSplit && fractionDigits < 1) {
+    if (!widget.enableSeparator && fractionDigits < 1) {
       result = numString.first;
     }
     final List<String> digitList =
         List.from(numString.first.characters, growable: false);
-    if (widget.enableDigitSplit) {
+    if (widget.enableSeparator) {
       int len = digitList.length - 1;
-      final digitSplitSymbol = widget.digitSplitSymbol ?? "";
+      final separateSymbol = widget.separateSymbol ?? "";
       for (int index = 0, i = len; i >= 0; index++, i--)
-        if (index % widget.separatorDigits == 0 && i != len)
-          digitList[i] += digitSplitSymbol;
+        if (index % widget.separateLength == 0 && i != len)
+          digitList[i] += separateSymbol;
     }
     if (fractionDigits > 0) {
       List<String> fractionList = List.from(numString.last.characters);
@@ -574,7 +595,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       loop: widget.loop,
       autoSize: widget.autoSize,
       animateAutoSize: widget.animateAutoSize,
-      singleBuilder: widget.singleBuilder,
     );
   }
 
@@ -612,9 +632,6 @@ class _AnimatedSingleWidget extends StatefulWidget {
 
   final bool animateAutoSize;
 
-  /// The [MediaQueryData] in textScaleFactor
-  final AnimatedSingleWidgetBuilder? singleBuilder;
-
   _AnimatedSingleWidget({
     required this.initialValue,
     this.boxDecoration,
@@ -626,7 +643,6 @@ class _AnimatedSingleWidget extends StatefulWidget {
     this.loop = false,
     this.autoSize = false,
     this.animateAutoSize = false,
-    this.singleBuilder,
   }) : super(key: GlobalKey<_AnimatedSingleWidgetState>());
 
   @override
@@ -723,7 +739,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   /// 初始化当前值的 Size | 指定的 Size
   Size _initSize() {
     if (widget.singleDigitData != null) {
-      if (widget.singleDigitData!.size != null && data!.useTextSize) {
+      if (widget.singleDigitData!.size != null && !data!.useTextSize) {
         return valueSize = widget.singleDigitData!.size!;
       }
     }
@@ -857,10 +873,16 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   /// 根据配置构建单个 Widget 的内容
   Widget _buildSingleWidget(String val) {
     Widget child = defaultBuildSingleWidget(val);
-    if (data?.builder != null) {
-      child = data!.builder!(valueSize, val, isNumber, child);
-    } else if (widget.singleBuilder != null) {
-      child = widget.singleBuilder!(valueSize, val, isNumber, child);
+    if (data == null) return child;
+    final SingleDigitData sdd = data!;
+    if (sdd.builder != null) {
+      child = sdd.builder!(valueSize, val, isNumber, child);
+    }
+    if (!sdd.useTextSize && sdd.size != null) {
+      child = SizedBox.fromSize(
+        size: valueSize,
+        child: child,
+      );
     }
     return child;
   }

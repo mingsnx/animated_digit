@@ -1,7 +1,19 @@
-## [3.0.1] - publish 3.0.1
-* 3.0.1 release
-* 优化自动缩放动画
-* Optimization autoSize animation
+## [3.1.0] - publish 3.1.0
+* 3.1.0 release
+* 优化自动伸缩尺寸的动画
+* optimization autoSize animation
+* added Controller API `minusValue`
+* added Controller API `timesValue`
+* added Controller API `divideValue`
+* added `prefix`
+* **widget params name change | 参数名称变更**
+  - `enableDigitSplit` => `enableSeparator`
+  - `digitSplitSymbol` => `separateSymbol`
+  - `separatorDigits` => `separateLength`
+* change `loop` default value => `true` (orgin `false`)
+* change `autoSize` default value => `true` (orgin `false`)
+* remove `singleBuilder`
+
 
 ## [3.0.0] - publish 3.0.0
 * 3.0.0 release
