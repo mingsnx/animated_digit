@@ -1,3 +1,8 @@
+## [3.1.2] - publish 3.1.2
+* 3.1.2 release
+* cancel `prefix` and `suffix` middle of space.
+* added negative symbol animation.
+## [3.1.1] Retracted Package Version.(fix error doc)
 ## [3.1.0] - publish 3.1.0
 * 3.1.0 release
 * 优化自动伸缩尺寸的动画

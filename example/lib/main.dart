@@ -167,7 +167,10 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
-                textStyle: TextStyle(color: Colors.orangeAccent.shade700, fontSize: 30),
+                textStyle: TextStyle(
+                  color: Colors.orangeAccent.shade700,
+                  fontSize: 30,
+                ),
                 fractionDigits: 2,
                 enableSeparator: true,
                 separateSymbol: "·",

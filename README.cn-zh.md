@@ -128,7 +128,7 @@ AnimatedDigitWidget(
 ),
 ```
 
-###🐳 Widget 参数 - [文档](https://pub.flutter-io.cn/documentation/animated_digit/latest/animated_digit/AnimatedDigitWidget-class.html)
+### 🐳 Widget 参数 - [文档](https://pub.flutter-io.cn/documentation/animated_digit/latest/animated_digit/AnimatedDigitWidget-class.html)
 
 #### **🚀 必填参数**
 
@@ -162,9 +162,9 @@ AnimatedDigitWidget(
 | Prop     | Type  |           Default |         Description  |
 | -------  | ---- | ------------  | ------------ |
 | **decimalSeparator**  |  String  | `.`  | **小数分隔符**，默认 `.`，可以替换为其他的符号来代替小数分隔符 |
-| **enableSeparator** |  bool  | false | **是否启用数字分隔符** 默认 `false` 不开启，样例：`1000520.99` => `1,000,520.99` ， <br/> **⚠️ 只有为 `true` 时，`separateLength` and `separateSymbol` 才会生效**  |
-| **separateSymbol**    |  String  | `,`   | ⚠️ **当 `enableSeparator = true` 有效。**⚠️ <br /> 数字分隔的**符号**（例如：千分位符号） <br/> `,` => `1,000,520.99` <br/> `'` => `1'000'520.99` <br/> `-` => `1-000-520.99` |
-| **separateLength**   |  int  | 3 | ⚠️ **当 `enableSeparator = true` 有效。**⚠️ <br /> 数字分隔的**长度**，默认为 `3` (千分位)。<br> 当 `separateSymbol` 为 `,` : <br/>  `1` => `1,0,0,0,5,2,0.99` <br/> `2` => `1,00,05,20.99` <br/> `3` => `1,000,520.99`
+| **enableSeparator** |  bool  | false | **是否启用数字分隔符** 默认 `false` 不开启，开启样例：`1000520` => `1,000,520` ， <br/> **⚠️ 只有为 `true` 时，`separateLength` and `separateSymbol` 才会生效**  |
+| **separateSymbol**    |  String  | `,`   | ⚠️ **当 `enableSeparator = true` 有效。**⚠️ <br /> 数字分隔的**符号**（例如：千分位符号） <br/> `,` => `1,000,520` <br/> `'` => `1'000'520` <br/> `-` => `1-000-520` |
+| **separateLength**   |  int  | 3 | ⚠️ **当 `enableSeparator = true` 有效。**⚠️ <br /> 数字分隔的**长度**，默认为 `3` (千分位)。<br> 当 `separateSymbol` 为 `,` : <br/>  `1` => `1,0,0,0,5,2,0` <br/> `2` => `1,00,05,20` <br/> `3` => `1,000,520`
 
 ---
 
@@ -191,8 +191,8 @@ AnimatedDigitWidget(
 
 | Prop     | Type  |           Default |         Description  |
 | -------  | ---- | ------------  | ------------ |
-| **prefix**  |  String  | null | 默认 `null` 不会添加，反之返回 "${prefix} 123456"，数字与 `prefix` 之间会拼接一个空格; |
-| **suffix** |  String  | null | 默认 `null` 不会添加，反之返回 "123456 ${suffix}"，数字与 `suffix` 之间会拼接一个空格; |
+| **prefix**  |  String  | null | 默认 `null` 不会添加前缀字符串。 |
+| **suffix** |  String  | null | 默认 `null` 不会添加后缀字符串。 |
 
 
 

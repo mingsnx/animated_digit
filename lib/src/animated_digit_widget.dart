@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 
 import 'number_percision.dart';
 
+const TextStyle _$defaultTextStyle =
+    TextStyle(color: Colors.black, fontSize: 25);
+
 /// #### 格式化最终显示的值
 ///
 /// [value] 是默认要显示的结果
@@ -181,6 +184,7 @@ class AnimatedDigitController extends ValueNotifier<num> {
       value = NPms.divide(value, newValue);
     }
   }
+
   /// #### 重置数字 | reset value
   ///
   /// ```
@@ -276,6 +280,8 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// `...` => 1000520.[...];
   final int fractionDigits;
 
+  /// ### orgin params => **`enableDigitSplit`** [ `>=v3.1.0` not available]
+  ///
   /// 启用数字分隔符 `1000520.99` | `1,000,520.99`
   ///
   /// see [separateLength] and [separateSymbol]
@@ -283,6 +289,8 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// enable number separator
   final bool enableSeparator;
 
+  /// ### orgin params => **`digitSplitSymbol`** [ `>=v3.1.0` not available]
+  ///
   /// Default thousands separator [`enableSeparator` = `false`] invalid,
   /// Other digits can be used `separateLength`,
   ///
@@ -301,6 +309,8 @@ class AnimatedDigitWidget extends StatefulWidget {
   ///
   final String? separateSymbol;
 
+  /// ### orgin params => **`separatorDigits`** [ `>=v3.1.0` not available]
+  ///
   /// Separate length, the default is thousands separator and at least greater than or equal to 1
   ///
   /// 数字分隔位数, 默认为千分位(3)
@@ -371,7 +381,7 @@ class AnimatedDigitWidget extends StatefulWidget {
 }
 
 class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   /// the controller value or widget value
   num get currentValue => widget.controller?.value ?? widget.value!;
 
@@ -414,6 +424,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   /// 在 [build] 完成时，恢复为 `false`, 以待下次重建
   bool _dirty = false;
 
+  late final TextStyle style = widget.textStyle ?? _$defaultTextStyle;
+
   @override
   void initState() {
     super.initState();
@@ -427,8 +439,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       _value.toString(),
       fractionDigits: widget.fractionDigits,
     );
-    if (widget.prefix != null) _val = "${widget.prefix} $_val";
-    if (widget.suffix != null) _val = "$_val ${widget.suffix}";
     return _handlerCustomFormatter(_val);
   }
 
@@ -497,6 +507,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
         if (index % widget.separateLength == 0 && i != len)
           digitList[i] += separateSymbol;
     }
+
+    // handle fraction digits
     if (fractionDigits > 0) {
       List<String> fractionList = List.from(numString.last.characters);
       if (fractionList.length > fractionDigits) {
@@ -515,7 +527,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     } else {
       result = digitList.join('');
     }
-    if (isNegativeNumber) result = "-" + result;
+
     return result;
   }
 
@@ -544,9 +556,16 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       _update();
     }
     _dirty = false;
+
     return Row(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
-      children: _widgets,
+      children: [
+        if (widget.prefix != null) Text(widget.prefix!, style: style),
+        _buildNegativeSymbol(),
+        ..._widgets,
+        if (widget.suffix != null) Text(widget.suffix!, style: style),
+      ],
     );
   }
 
@@ -572,6 +591,22 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     }
   }
 
+  Widget _buildNegativeSymbol() {
+    return AnimatedCrossFade(
+      key: ValueKey("NegativeSymbol"),
+      firstChild: Text("", style: style),
+      secondChild: Text("-", style: style),
+      sizeCurve: widget.curve,
+      firstCurve: widget.curve,
+      secondCurve: widget.curve,
+      duration: widget.duration,
+      reverseDuration: widget.duration,
+      crossFadeState: isNegativeNumber
+          ? CrossFadeState.showSecond
+          : CrossFadeState.showFirst,
+    );
+  }
+
   void _setValue(Key? _aswsKey, String value) {
     assert(_aswsKey != null);
     if (_aswsKey is GlobalKey<_AnimatedSingleWidgetState>) {
@@ -586,7 +621,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   _AnimatedSingleWidget _buildSingleWidget(String value) {
     return _AnimatedSingleWidget(
       initialValue: value,
-      textStyle: widget.textStyle,
+      textStyle: style,
       boxDecoration: widget.boxDecoration,
       duration: widget.duration,
       curve: widget.curve,
@@ -607,13 +642,13 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 /// single
 class _AnimatedSingleWidget extends StatefulWidget {
   /// textStyle
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// duration
-  final Duration? duration;
+  final Duration duration;
 
   /// curve
-  final Curve? curve;
+  final Curve curve;
 
   /// boxDecoration
   final BoxDecoration? boxDecoration;
@@ -634,10 +669,10 @@ class _AnimatedSingleWidget extends StatefulWidget {
 
   _AnimatedSingleWidget({
     required this.initialValue,
+    required this.textStyle,
+    required this.duration,
+    required this.curve,
     this.boxDecoration,
-    this.duration,
-    this.curve,
-    this.textStyle,
     this.textScaleFactor,
     this.singleDigitData,
     this.loop = false,
@@ -669,21 +704,16 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   bool get loop => widget.loop;
 
   /// text style
-  late final TextStyle _textStyle = widget.textStyle ??
-      const TextStyle(
-        color: Colors.black,
-        fontSize: 25,
-      );
+  TextStyle get _textStyle => widget.textStyle;
 
   /// box decoration
   BoxDecoration? get _boxDecoration => widget.boxDecoration;
 
   /// scroll duration
-  late final Duration _duration =
-      widget.duration ?? const Duration(milliseconds: 300);
+  Duration get _duration => widget.duration;
 
   /// animate curve
-  late final Curve _curve = widget.curve ?? Curves.easeInOut;
+  Curve get _curve => widget.curve;
 
   /// 数字滚动控制
   late final ScrollController scrollController = ScrollController();

@@ -137,7 +137,7 @@ AnimatedDigitWidget(
 - **`controller`**  - digit controller, The displayed number can be controlled via `addValue` and `resetValue`.
 <br />
 
-- **`value`** - the display number，When coexisting with `controller`.
+- **`value`** - the display number.
 <br />
 
 #### **🍑 TextStyle And BoxStyle Setting**
@@ -149,7 +149,7 @@ AnimatedDigitWidget(
 #### **🍇 Int Type(default) Or Decimal Type Setting**
 
 - **fractionDigits** - the fraction digits, `int`, **default** `0`. 
-  - Example ( `1000520.98765` ):
+  - 🖌 **Example ( `1000520.98765` )**:
   - `0` => `1000520`; 
   - `1` => `1000520.9`;
   - `2` => `1000520.98`;
@@ -166,21 +166,21 @@ AnimatedDigitWidget(
 <br />
 
 - **`enableSeparator`** - enable digit separator. **default** `false` not enable, only `true`, `separateLength` and `separateSymbol` valid.
-  - 🖌 **Example**: `1000520.99` => `1,000,520.99`
+  - 🖌 **Example (`true`)**: `1000520` => `1,000,520` (seealso `separateLength` or `separateSymbol`)
 <br />
 
 - **`separateSymbol`** - the numbers separator symbol (only enableSeparator is true), make numbers much easier to read, **default** `,`.
-  - 🖌 **Example**:
-  - `,` => `1,000,520.99` 
-  - `'` => `1'000'520.99` 
-  - `-` => `1-000-520.99`
+  - 🖌 **Example ( `1000520` )**:
+  - `,` => `1,000,520` 
+  - `'` => `1'000'520` 
+  - `-` => `1-000-520`
 <br />
 
 - **`separateLength`** - the numbers separator length (only enableSeparator is true), `separateSymbol` by separator length insert, **default** `3`.
-  - 🖌 **Example**:
-  - `1` => `1,0,0,0,5,2,0.99` 
-  - `2` => `1,00,05,20.99` 
-  - `3` => `1,000,520.99`
+  - 🖌 **Example ( `1000520` )**:
+  - `1` => `1,0,0,0,5,2,0` 
+  - `2` => `1,00,05,20` 
+  - `3` => `1,000,520`
 <br />
 
 #### **🥝 Scroll Animation Setting** 
@@ -200,8 +200,8 @@ AnimatedDigitWidget(
 
 #### **🍒 Number prefix and suffix Setting**
 
-- **`prefix`** - the text to display in front of the counter, `return "${prefix} 123456"`, a space is inserted between the number and the `prefix`.
-- **`suffix`** - the text to display after the counter. `return "123456 ${suffix}"`, a space is inserted between the number and the `suffix`.
+- **`prefix`** - the text to display in front of the counter.
+- **`suffix`** - the text to display after the counter. 
 <br />
 
 ### Thanks
