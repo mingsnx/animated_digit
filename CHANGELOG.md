@@ -1,3 +1,6 @@
+## [3.1.2] - publish 3.1.3
+* 3.1.2 release
+* fix _setValue null error
 ## [3.1.2] - publish 3.1.2
 * 3.1.2 release
 * cancel `prefix` and `suffix` middle of space.

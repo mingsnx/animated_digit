@@ -382,29 +382,6 @@ class AnimatedDigitWidget extends StatefulWidget {
 
 class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     with WidgetsBindingObserver, SingleTickerProviderStateMixin {
-  /// the controller value or widget value
-  num get currentValue => widget.controller?.value ?? widget.value!;
-
-  final List<_AnimatedSingleWidget> _widgets = [];
-
-  String _oldValue = "0.0";
-  num _value = 0.0;
-
-  /// value get,
-  num get value => _value;
-
-  /// value set
-  set value(num newValue) {
-    _oldValue = _getFormatValueAsString();
-    _value = newValue;
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  /// is negative number
-  bool get isNegativeNumber => _value.isNegative;
-
   /// see [MediaQueryData]
   MediaQueryData? _mediaQueryData;
 
@@ -425,6 +402,27 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   bool _dirty = false;
 
   late final TextStyle style = widget.textStyle ?? _$defaultTextStyle;
+
+  /// the controller value or widget value
+  num get currentValue => widget.controller?.value ?? widget.value!;
+
+  final List<_AnimatedSingleWidget> _widgets = [];
+
+  num _value = 0.0;
+
+  /// value get,
+  num get value => _value;
+
+  /// value set
+  set value(num newValue) {
+    _value = newValue;
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// is negative number
+  bool get isNegativeNumber => _value.isNegative;
 
   @override
   void initState() {
@@ -580,7 +578,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   void _update() {
     String newValue = _getFormatValueAsString();
     final int lenNew = newValue.length;
-    final int lenOld = _oldValue.length;
+    final int lenOld = _widgets.length;
     if (lenNew == lenOld) {
       for (var i = 0; i < lenNew; i++) {
         final String curr = newValue[i];
@@ -610,7 +608,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   void _setValue(Key? _aswsKey, String value) {
     assert(_aswsKey != null);
     if (_aswsKey is GlobalKey<_AnimatedSingleWidgetState>) {
-      _aswsKey.currentState!.setValue(value);
+      _aswsKey.currentState?.setValue(value);
     }
   }
 
