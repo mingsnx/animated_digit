@@ -60,7 +60,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      showPerformanceOverlay: true,
+      showPerformanceOverlay: false,
       home: Scaffold(
         appBar: AppBar(
           title: Text("Animated Digit Widget Example"),
@@ -74,6 +74,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                   formatter: (val) => "Hello $val ~ ",
                 ),
                 child: AnimatedDigitWidget(
+                  textStyle: TextStyle(fontFamily: "Handwritten", fontSize: 30, color: Colors.deepOrange),
                   value: DateTime.now().year,
                 ),
               ),
@@ -81,35 +82,57 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
               AnimatedDigitWidget(
                 controller: _controller,
                 loop: true,
+                textStyle: TextStyle(fontFamily: "清松手写体1", fontSize: 40, color: Colors.green),
+                duration: Duration(milliseconds: 520),
+                curve: Curves.easeOutCubic,
+                autoSize: true,
+                animateAutoSize: true,
+              ),
+              AnimatedDigitWidget(
+                controller: _controller,
+                loop: true,
+                textStyle: TextStyle(fontFamily: "Handwritten", fontSize: 40, color: Colors.green),
                 duration: Duration(milliseconds: 520),
                 curve: Curves.easeOutCubic,
                 autoSize: true,
                 animateAutoSize: true,
               ),
               SizedBox(height: 20),
-              AnimatedDigitWidget(
-                controller: _controller,
-                textStyle: TextStyle(color: Colors.orange[200], fontSize: 30),
-                enableSeparator: true,
-                duration: Duration(milliseconds: 520),
-                autoSize: true,
-                animateAutoSize: true,
-                loop: true,
+              SizedBox(
+                child: AnimatedDigitWidget(
+                  controller: _controller,
+                  textStyle: TextStyle(color: Colors.orange[200], fontSize: 30, fontFamily: "Handwritten",),
+                  enableSeparator: true,
+                  duration: Duration(milliseconds: 520),
+                  autoSize: true,
+                  animateAutoSize: true,
+                  prefix: "￥",
+                  loop: true,
+                ),
+              ),
+              SizedBox(height: 20),
+              Container(
+                color: Colors.black,
+                width: 188,
+                height: 60,
+                child: AnimatedDigitWidget(
+                  controller: _controller,
+                  textStyle: TextStyle(color: Colors.purple[200], fontSize: 30, fontFamily: "清松手写体1",),
+                  fractionDigits: 2,
+                  boxDecoration: BoxDecoration(
+                    color: Colors.green
+                  ),
+                  enableSeparator: true,
+                  autoSize: true,
+                  animateAutoSize: true,
+                  prefix: "￥",
+                  duration: Duration(milliseconds: 520),
+                ),
               ),
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
-                textStyle: TextStyle(color: Colors.purple[200], fontSize: 30),
-                fractionDigits: 2,
-                enableSeparator: true,
-                autoSize: true,
-                animateAutoSize: true,
-                duration: Duration(milliseconds: 520),
-              ),
-              SizedBox(height: 20),
-              AnimatedDigitWidget(
-                controller: _controller,
-                textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+                textStyle: TextStyle(color: Colors.pink[200], fontSize: 30, fontFamily: "Handwritten",),
                 separateLength: 1,
                 separateSymbol: "#",
                 enableSeparator: true,
@@ -121,15 +144,18 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
               SizedBox(height: 20),
               SingleDigitProvider(
                 data: SingleDigitData(
+                  size: Size(20, 43),
                   useTextSize: false,
-                  size: Size.fromRadius(15),
                   builder: (size, value, isNumber, child) {
-                    return isNumber ? child : FlutterLogo(size: 20);
+                    return isNumber ? child : Align(
+                      alignment: Alignment(0, -0.3),
+                      child: FlutterLogo()
+                    );
                   },
                 ),
                 child: AnimatedDigitWidget(
                   controller: _controller,
-                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30, fontFamily: "清松手写体1",),
                   separateLength: 1,
                   separateSymbol: "#",
                   enableSeparator: true,
@@ -142,12 +168,15 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 data: SingleDigitData(
                   useTextSize: true,
                   builder: (size, value, isNumber, child) {
-                    return isNumber ? child : FlutterLogo();
+                    return isNumber ? child : Align(
+                      alignment: Alignment(0, 0.6),
+                      child: FlutterLogo()
+                    );
                   },
                 ),
                 child: AnimatedDigitWidget(
                   controller: _controller,
-                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30),
+                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30, fontFamily: "Handwritten",),
                   separateLength: 1,
                   separateSymbol: "#",
                   enableSeparator: true,
@@ -158,8 +187,8 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
               SizedBox(height: 20),
               AnimatedDigitWidget(
                 controller: _controller,
-                textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30),
-                suffix: "& ${DateTime.now().year + 1}",
+                textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30, fontFamily: "清松手写体1",),
+                suffix: " & ${DateTime.now().year + 1}",
                 duration: const Duration(milliseconds: 520),
                 autoSize: true,
                 animateAutoSize: true,
@@ -170,6 +199,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 textStyle: TextStyle(
                   color: Colors.orangeAccent.shade700,
                   fontSize: 30,
+                  fontFamily: "Handwritten",
                 ),
                 fractionDigits: 2,
                 enableSeparator: true,
