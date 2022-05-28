@@ -43,7 +43,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
   }
 
   void _reset() {
-    _controller.resetValue(12531.98);
+    _controller.resetValue(0);
   }
 
   void updateFontScale() {
@@ -66,150 +66,201 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
           title: Text("Animated Digit Widget Example"),
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SingleDigitProvider(
-                data: SingleDigitData(
-                  formatter: (val) => "Hello $val ~ ",
-                ),
-                child: AnimatedDigitWidget(
-                  textStyle: TextStyle(fontFamily: "Handwritten", fontSize: 30, color: Colors.deepOrange),
-                  value: DateTime.now().year,
-                ),
-              ),
-              SizedBox(height: 20),
-              AnimatedDigitWidget(
-                controller: _controller,
-                loop: true,
-                textStyle: TextStyle(fontFamily: "清松手写体1", fontSize: 40, color: Colors.green),
-                duration: Duration(milliseconds: 520),
-                curve: Curves.easeOutCubic,
-                autoSize: true,
-                animateAutoSize: true,
-              ),
-              AnimatedDigitWidget(
-                controller: _controller,
-                loop: true,
-                textStyle: TextStyle(fontFamily: "Handwritten", fontSize: 40, color: Colors.green),
-                duration: Duration(milliseconds: 520),
-                curve: Curves.easeOutCubic,
-                autoSize: true,
-                animateAutoSize: true,
-              ),
-              SizedBox(height: 20),
-              SizedBox(
-                child: AnimatedDigitWidget(
-                  controller: _controller,
-                  textStyle: TextStyle(color: Colors.orange[200], fontSize: 30, fontFamily: "Handwritten",),
-                  enableSeparator: true,
-                  duration: Duration(milliseconds: 520),
-                  autoSize: true,
-                  animateAutoSize: true,
-                  prefix: "￥",
-                  loop: true,
-                ),
-              ),
-              SizedBox(height: 20),
-              Container(
-                color: Colors.black,
-                width: 188,
-                height: 60,
-                child: AnimatedDigitWidget(
-                  controller: _controller,
-                  textStyle: TextStyle(color: Colors.purple[200], fontSize: 30, fontFamily: "清松手写体1",),
-                  fractionDigits: 2,
-                  boxDecoration: BoxDecoration(
-                    color: Colors.green
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SingleDigitProvider(
+                  data: SingleDigitData(
+                    formatter: (val) => "Hello $val ~ ",
                   ),
-                  enableSeparator: true,
+                  child: AnimatedDigitWidget(
+                    textStyle: TextStyle(
+                        fontFamily: "Handwritten",
+                        fontSize: 30,
+                        color: Colors.deepOrange),
+                    value: DateTime.now().year,
+                  ),
+                ),
+                SizedBox(height: 20),
+                AnimatedDigitWidget(
+                  controller: _controller,
+                  loop: true,
+                  textStyle: TextStyle(
+                      fontFamily: "Handwritten",
+                      fontSize: 40,
+                      color: Colors.green),
+                  duration: Duration(milliseconds: 520),
+                  curve: Curves.easeOutCubic,
                   autoSize: true,
                   animateAutoSize: true,
-                  prefix: "￥",
+                ),
+                SizedBox(height: 20),
+                SizedBox(
+                  child: SingleDigitProvider(
+                    data: SingleDigitData(
+                      prefixAndSuffixFollowValueColor: false,
+                      valueChangeColors: [
+                        ValueColor(
+                          condition: () => _controller.value <= 0,
+                          color: Colors.red,
+                        ),
+                        ValueColor(
+                          condition: () => _controller.value >= 5999,
+                          color: Colors.lightGreen,
+                        ),
+                      ],
+                    ),
+                    child: AnimatedDigitWidget(
+                      controller: _controller,
+                      textStyle: TextStyle(
+                        color: Colors.orange[200],
+                        fontSize: 30,
+                        fontFamily: "Handwritten",
+                      ),
+                      enableSeparator: true,
+                      duration: Duration(milliseconds: 520),
+                      autoSize: true,
+                      animateAutoSize: true,
+                      prefix: "￥",
+                      loop: true,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(
+                  color: Colors.black,
+                  width: 188,
+                  height: 60,
+                  child: AnimatedDigitWidget(
+                    controller: _controller,
+                    textStyle: TextStyle(
+                      color: Colors.purple[200],
+                      fontSize: 30,
+                      fontFamily: "清松手写体1",
+                    ),
+                    fractionDigits: 2,
+                    boxDecoration: BoxDecoration(color: Colors.green),
+                    enableSeparator: true,
+                    autoSize: true,
+                    animateAutoSize: true,
+                    prefix: "￥",
+                    duration: Duration(milliseconds: 520),
+                  ),
+                ),
+                SizedBox(height: 20),
+                AnimatedDigitWidget(
+                  controller: _controller,
+                  textStyle: TextStyle(
+                    color: Colors.pink[200],
+                    fontSize: 30,
+                    fontFamily: "Handwritten",
+                  ),
+                  separateLength: 1,
+                  separateSymbol: "#",
+                  enableSeparator: true,
+                  loop: true,
+                  autoSize: true,
+                  animateAutoSize: true,
                   duration: Duration(milliseconds: 520),
                 ),
-              ),
-              SizedBox(height: 20),
-              AnimatedDigitWidget(
-                controller: _controller,
-                textStyle: TextStyle(color: Colors.pink[200], fontSize: 30, fontFamily: "Handwritten",),
-                separateLength: 1,
-                separateSymbol: "#",
-                enableSeparator: true,
-                loop: true,
-                autoSize: true,
-                animateAutoSize: true,
-                duration: Duration(milliseconds: 520),
-              ),
-              SizedBox(height: 20),
-              SingleDigitProvider(
-                data: SingleDigitData(
-                  size: Size(20, 43),
-                  useTextSize: false,
-                  builder: (size, value, isNumber, child) {
-                    return isNumber ? child : Align(
-                      alignment: Alignment(0, -0.3),
-                      child: FlutterLogo()
-                    );
-                  },
+                SizedBox(height: 20),
+                SingleDigitProvider(
+                  data: SingleDigitData(
+                    size: Size(20, 43),
+                    useTextSize: false,
+                    builder: (size, value, isNumber, child) {
+                      return isNumber
+                          ? child
+                          : Align(
+                              alignment: Alignment(0, -0.3),
+                              child: FlutterLogo());
+                    },
+                  ),
+                  child: AnimatedDigitWidget(
+                    controller: _controller,
+                    textStyle: TextStyle(
+                      color: Colors.pink[200],
+                      fontSize: 30,
+                      fontFamily: "清松手写体1",
+                    ),
+                    separateLength: 1,
+                    separateSymbol: "#",
+                    enableSeparator: true,
+                    loop: true,
+                    duration: const Duration(milliseconds: 520),
+                  ),
                 ),
-                child: AnimatedDigitWidget(
+                SizedBox(height: 20),
+                SingleDigitProvider(
+                  data: SingleDigitData(
+                    useTextSize: true,
+                    valueChangeColors: [
+                      ValueColor(
+                        condition: () => _controller.value <= 0,
+                        color: Colors.red,
+                      ),
+                      ValueColor(
+                        condition: () => _controller.value >= 2999,
+                        color: Colors.purple,
+                      ),
+                      ValueColor(
+                        condition: () => _controller.value >= 5999,
+                        color: Colors.lightGreen,
+                      ),
+                      ValueColor(
+                        condition: () => _controller.value >= 7999,
+                        color: Colors.amber,
+                      ),
+                    ],
+                  ),
+                  child: AnimatedDigitWidget(
+                    controller: _controller,
+                    textStyle: TextStyle(
+                      color: Colors.pink[200],
+                      fontSize: 40,
+                      fontFamily: "Handwritten",
+                      fontWeight: FontWeight.w800,
+                    ),
+                    separateLength: 1,
+                    separateSymbol: "#",
+                    enableSeparator: true,
+                    fractionDigits: 2,
+                    loop: true,
+                    duration: const Duration(milliseconds: 520),
+                  ),
+                ),
+                SizedBox(height: 20),
+                AnimatedDigitWidget(
                   controller: _controller,
-                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30, fontFamily: "清松手写体1",),
-                  separateLength: 1,
-                  separateSymbol: "#",
-                  enableSeparator: true,
-                  loop: true,
+                  textStyle: TextStyle(
+                    color: Colors.cyan[200],
+                    fontSize: 30,
+                    fontFamily: "清松手写体1",
+                  ),
+                  suffix: " & ${DateTime.now().year + 1}",
                   duration: const Duration(milliseconds: 520),
+                  autoSize: true,
+                  animateAutoSize: true,
                 ),
-              ),
-              SizedBox(height: 20),
-              SingleDigitProvider(
-                data: SingleDigitData(
-                  useTextSize: true,
-                  builder: (size, value, isNumber, child) {
-                    return isNumber ? child : Align(
-                      alignment: Alignment(0, 0.6),
-                      child: FlutterLogo()
-                    );
-                  },
-                ),
-                child: AnimatedDigitWidget(
+                SizedBox(height: 20),
+                AnimatedDigitWidget(
                   controller: _controller,
-                  textStyle: TextStyle(color: Colors.pink[200], fontSize: 30, fontFamily: "Handwritten",),
-                  separateLength: 1,
-                  separateSymbol: "#",
+                  textStyle: TextStyle(
+                    color: Colors.orangeAccent.shade700,
+                    fontSize: 30,
+                    fontFamily: "Handwritten",
+                  ),
+                  fractionDigits: 2,
                   enableSeparator: true,
-                  loop: true,
-                  duration: const Duration(milliseconds: 520),
+                  separateSymbol: "·",
+                  separateLength: 3,
+                  decimalSeparator: ",",
+                  prefix: "\$",
+                  suffix: "€",
                 ),
-              ),
-              SizedBox(height: 20),
-              AnimatedDigitWidget(
-                controller: _controller,
-                textStyle: TextStyle(color: Colors.cyan[200], fontSize: 30, fontFamily: "清松手写体1",),
-                suffix: " & ${DateTime.now().year + 1}",
-                duration: const Duration(milliseconds: 520),
-                autoSize: true,
-                animateAutoSize: true,
-              ),
-              SizedBox(height: 20),
-              AnimatedDigitWidget(
-                controller: _controller,
-                textStyle: TextStyle(
-                  color: Colors.orangeAccent.shade700,
-                  fontSize: 30,
-                  fontFamily: "Handwritten",
-                ),
-                fractionDigits: 2,
-                enableSeparator: true,
-                separateSymbol: "·",
-                separateLength: 3,
-                decimalSeparator: ",",
-                prefix: "\$",
-                suffix: "€",
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         floatingActionButton: Column(

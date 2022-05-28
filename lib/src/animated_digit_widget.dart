@@ -24,6 +24,22 @@ typedef Widget AnimatedSingleWidgetBuilder(
   Widget child,
 );
 
+/// #### 当值符合条件时，改变颜色
+typedef TextStyle ValueChangeTextStyle(TextStyle style);
+
+/// #### 当值符合条件时，改变颜色
+typedef bool ValueColorCondition();
+
+class ValueColor {
+  ValueColorCondition condition;
+  Color color;
+
+  ValueColor({
+    required this.condition,
+    required this.color,
+  });
+}
+
 /// 单个包装的字符/数字依赖配置数据源
 class SingleDigitData {
   /// 单个字符容器尺寸大小。
@@ -33,6 +49,9 @@ class SingleDigitData {
   /// If it is null, it will be calculated with the number `0` as the font width and height standard.
   ///
   Size? size;
+
+  List<ValueColor>? valueChangeColors;
+  bool prefixAndSuffixFollowValueColor;
 
   /// 自定义内容 builder
   /// 每一个数字，每一个字符。
@@ -55,9 +74,35 @@ class SingleDigitData {
   SingleDigitData({
     this.size,
     this.useTextSize = false,
+    this.valueChangeColors,
+    this.prefixAndSuffixFollowValueColor = true,
     this.builder,
     this.formatter,
   });
+
+  TextStyle? _tempTextStyle;
+  Widget _buildAnimateTextColorWidget(
+    ValueColor cfg,
+    String val,
+    TextStyle textStyle,
+  ) {
+    if (_tempTextStyle?.color == textStyle.color) {
+      return Text(val, style: textStyle);
+    }
+    final result = Text(val, style: textStyle.copyWith(color: cfg.color));
+    _tempTextStyle = textStyle.copyWith(color: cfg.color);
+    return result;
+  }
+
+  ValueColor? getLastValidValueColor() {
+    ValueColor? result;
+    for (var vc in valueChangeColors!) {
+      if (vc.condition()) {
+        result = vc;
+      }
+    }
+    return result;
+  }
 
   @override
   bool operator ==(Object other) {
@@ -427,7 +472,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     widget.controller?.addListener(_updateValue);
     value = currentValue;
   }
@@ -541,7 +586,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     widget.controller?.removeListener(_updateValue);
     super.dispose();
   }
@@ -559,12 +604,21 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (widget.prefix != null) Text(widget.prefix!, style: style),
+        if (widget.prefix != null) _buildCanChangeColorWidget(widget.prefix!),
         _buildNegativeSymbol(),
         ..._widgets,
-        if (widget.suffix != null) Text(widget.suffix!, style: style),
+        if (widget.suffix != null) _buildCanChangeColorWidget(widget.suffix!),
       ],
     );
+  }
+
+  Widget _buildCanChangeColorWidget(String val) {
+    Widget result = Text(val, style: style);
+    final sdd = _singleDigitData;
+    if (sdd == null || !sdd.prefixAndSuffixFollowValueColor) return result;
+    final vc = sdd.getLastValidValueColor();
+    if (vc != null) result = sdd._buildAnimateTextColorWidget(vc, val, style);
+    return result;
   }
 
   void _rebuild([String? value]) {
@@ -579,8 +633,15 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     String newValue = _getFormatValueAsString();
     final int lenNew = newValue.length;
     final int lenOld = _widgets.length;
-    if (lenNew == lenOld) {
-      for (var i = 0; i < lenNew; i++) {
+    if (value == 0 || lenNew == lenOld) {
+      if (lenNew < lenOld) {
+        _widgets.removeRange(
+            lenNew - 1,
+            (lenOld - lenNew) +
+                widget.fractionDigits +
+                (widget.fractionDigits > 0 ? 1 : 0));
+      }
+      for (var i = 0; i < (lenNew == 0 ? 1 : lenNew); i++) {
         final String curr = newValue[i];
         _setValue(_widgets[i].key, curr);
       }
@@ -590,10 +651,25 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   Widget _buildNegativeSymbol() {
+    final sdd = _singleDigitData;
+    late Widget secondChild = Text("-", key: ValueKey("Symbol"), style: style);
+    if (sdd != null && sdd.valueChangeColors != null) {
+      Color c = style.color ?? Colors.black;
+      for (var cfg in sdd.valueChangeColors!) {
+        if (cfg.condition()) {
+          c = cfg.color;
+        }
+      }
+      secondChild = Text(
+        "-",
+        key: ValueKey("Symbol"),
+        style: style.copyWith(color: c),
+      );
+    }
     return AnimatedCrossFade(
       key: ValueKey("NegativeSymbol"),
-      firstChild: Text("", style: style),
-      secondChild: Text("-", style: style),
+      firstChild: Text("", key: ValueKey("Symbol"), style: style),
+      secondChild: secondChild,
       sizeCurve: widget.curve,
       firstCurve: widget.curve,
       secondCurve: widget.curve,
@@ -659,10 +735,13 @@ class _AnimatedSingleWidget extends StatefulWidget {
 
   final SingleDigitData? singleDigitData;
 
+  /// loop scroll
   final bool loop;
 
+  /// auto scale text size
   final bool autoSize;
 
+  /// use animate scale text size scale
   final bool animateAutoSize;
 
   _AnimatedSingleWidget({
@@ -776,7 +855,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   /// ## 获取 [text] 的 Size
   Size _getTextSize(String text) {
-    final window = WidgetsBinding.instance!.window;
+    final window = WidgetsBinding.instance.window;
     final fontWeight = window.accessibilityFeatures.boldText
         ? FontWeight.bold
         : _textStyle.fontWeight == FontWeight.bold
@@ -797,7 +876,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   /// 动画滚动到当前的数字
   void _animateTo() {
     if (isNumber && oldValue != currentValue) {
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollController.hasClients) {
           _scrollTo();
         }
@@ -903,6 +982,11 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     Widget child = defaultBuildSingleWidget(val);
     if (data == null) return child;
     final SingleDigitData sdd = data!;
+    if (sdd.valueChangeColors != null) {
+      ValueColor? config = sdd.getLastValidValueColor();
+      if (config != null)
+        child = sdd._buildAnimateTextColorWidget(config, val, _textStyle);
+    }
     if (sdd.builder != null) {
       child = sdd.builder!(valueSize, val, isNumber, child);
     }

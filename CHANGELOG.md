@@ -1,5 +1,9 @@
-## [3.1.2] - publish 3.1.3
-* 3.1.2 release
+## [3.2.0] - publish 3.2.0
+* Update to Flutter 3.0
+* fix `WidgetsBinding.instance` in flutter 3.0 is not null， so, removing the '!' operator.
+* added change color based on value.
+## [3.1.3] - publish 3.1.3
+* 3.1.3 release
 * fix _setValue null error
 ## [3.1.2] - publish 3.1.2
 * 3.1.2 release
