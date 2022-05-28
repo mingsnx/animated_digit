@@ -50,7 +50,10 @@ class SingleDigitData {
   ///
   Size? size;
 
+  /// 根据值变化颜色的集合
   List<ValueColor>? valueChangeColors;
+
+  /// 前缀和后缀跟随颜色变化，默认跟随
   bool prefixAndSuffixFollowValueColor;
 
   /// 自定义内容 builder

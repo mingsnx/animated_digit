@@ -75,10 +75,8 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                     formatter: (val) => "Hello $val ~ ",
                   ),
                   child: AnimatedDigitWidget(
-                    textStyle: TextStyle(
-                        fontFamily: "Handwritten",
-                        fontSize: 30,
-                        color: Colors.deepOrange),
+                    textStyle:
+                        TextStyle(fontSize: 30, color: Colors.deepOrange),
                     value: DateTime.now().year,
                   ),
                 ),
@@ -86,10 +84,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 AnimatedDigitWidget(
                   controller: _controller,
                   loop: true,
-                  textStyle: TextStyle(
-                      fontFamily: "Handwritten",
-                      fontSize: 40,
-                      color: Colors.green),
+                  textStyle: TextStyle(fontSize: 40, color: Colors.green),
                   duration: Duration(milliseconds: 520),
                   curve: Curves.easeOutCubic,
                   autoSize: true,
@@ -116,7 +111,6 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                       textStyle: TextStyle(
                         color: Colors.orange[200],
                         fontSize: 30,
-                        fontFamily: "Handwritten",
                       ),
                       enableSeparator: true,
                       duration: Duration(milliseconds: 520),
@@ -137,7 +131,6 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                     textStyle: TextStyle(
                       color: Colors.purple[200],
                       fontSize: 30,
-                      fontFamily: "清松手写体1",
                     ),
                     fractionDigits: 2,
                     boxDecoration: BoxDecoration(color: Colors.green),
@@ -154,7 +147,6 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                   textStyle: TextStyle(
                     color: Colors.pink[200],
                     fontSize: 30,
-                    fontFamily: "Handwritten",
                   ),
                   separateLength: 1,
                   separateSymbol: "#",
@@ -182,7 +174,6 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                     textStyle: TextStyle(
                       color: Colors.pink[200],
                       fontSize: 30,
-                      fontFamily: "清松手写体1",
                     ),
                     separateLength: 1,
                     separateSymbol: "#",
@@ -219,7 +210,6 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                     textStyle: TextStyle(
                       color: Colors.pink[200],
                       fontSize: 40,
-                      fontFamily: "Handwritten",
                       fontWeight: FontWeight.w800,
                     ),
                     separateLength: 1,
@@ -236,7 +226,6 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                   textStyle: TextStyle(
                     color: Colors.cyan[200],
                     fontSize: 30,
-                    fontFamily: "清松手写体1",
                   ),
                   suffix: " & ${DateTime.now().year + 1}",
                   duration: const Duration(milliseconds: 520),
@@ -249,7 +238,6 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                   textStyle: TextStyle(
                     color: Colors.orangeAccent.shade700,
                     fontSize: 30,
-                    fontFamily: "Handwritten",
                   ),
                   fractionDigits: 2,
                   enableSeparator: true,
