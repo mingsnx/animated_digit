@@ -1,5 +1,5 @@
 ///
-/// Copyright (c) by pub.dev number_precision 1.0.0+2
+/// Copyright (c) by pub.dev number_precision 2.0.2+1
 ///
 /// pub.dev: https://pub.dev/packages/number_precision
 ///
@@ -7,21 +7,15 @@
 ///
 /// Author：luoyelusheng@gmail.com
 ///
-
 import 'dart:math';
 
 /// The smallest possible value of an int within 64 bits.
-///
-/// Fix the minimumvalue of int under the web platform
-final int int64MinValue = -9219999999000000512;
+const int intMinValue = -9007199254740991;
 
 /// The biggest possible value of an int within 64 bits.
-///
-/// Fix the maximum value of int under the web platform
-final int int64MaxValue = 9219999999000000512;
+const int inMaxValue = 9007199254740991;
 
-/// number precision
-class NPms {
+class NP {
   static bool _boundaryCheckingState = true;
 
   /// 字符串转为[num]类型
@@ -45,7 +39,7 @@ class NPms {
 
   /// 返回小数的位数
   /// [number] 数据
-  static int digitLength(dynamic number) {
+  static num digitLength(dynamic number) {
     final eSplit = parseNum(number).toString().toLowerCase().split('e');
     final digit = eSplit[0].split('.');
     final len = (digit.length == 2 ? digit[1].length : 0) -
@@ -56,18 +50,19 @@ class NPms {
   /// 把小数转成整数，支持科学计数法。如果是小数则放大成整数
   /// [number] 数据
   static num float2Fixed(dynamic number) {
-    final int dLen = digitLength(number);
+    final dLen = digitLength(number);
     if (dLen <= 20) {
       if (number is String) {
         if (number.toLowerCase().indexOf('e') == -1) {
           return num.parse(number.replaceAll('.', ''));
         }
         return num.parse(num.parse(number)
-            .toStringAsFixed(dLen)
+            .toStringAsFixed(dLen as int)
             .replaceAll(dLen == 0 ? '' : '.', ''));
       } else if (number is num) {
-        return num.parse(
-            number.toStringAsFixed(dLen).replaceAll(dLen == 0 ? '' : '.', ''));
+        return num.parse(number
+            .toStringAsFixed(dLen as int)
+            .replaceAll(dLen == 0 ? '' : '.', ''));
       }
 
       throw FormatException('$number is not of type num and String');
@@ -80,7 +75,7 @@ class NPms {
   /// [number] 数据
   static void checkBoundary(dynamic number) {
     if (_boundaryCheckingState) {
-      if (number > int64MaxValue || number < int64MinValue) {
+      if (number > inMaxValue || number < intMinValue) {
         throw Exception(
             '$number is beyond boundary when transfer to integer, the results may not be accurate');
       }
@@ -100,15 +95,11 @@ class NPms {
     num num1Changed = float2Fixed(num1);
     num num2Changed = float2Fixed(num2);
     num baseNum = digitLength(num1) + digitLength(num2);
-    num leftValue = num1Changed * num2Changed;
+    dynamic leftValue = num1Changed * num2Changed;
 
     checkBoundary(leftValue);
 
-    // if (leftValue.toString().length + baseNum < 20) {
-    return strip(leftValue / pow(10, baseNum));
-    // } else {
-    //   return NP.strip(num.parse('${leftValue}e-$baseNum'));
-    // }
+    return NP.strip(leftValue / pow(10, baseNum));
   }
 
   /// 精确加法

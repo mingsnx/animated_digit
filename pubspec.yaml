@@ -1,6 +1,6 @@
 name: animated_digit
 description: A scroll numbers animation widget, any number that need scroll animation effects and easy to use.
-version: 3.2.0
+version: 3.2.1
 homepage: https://github.com/mingsnx/animated_digit
 
 environment:

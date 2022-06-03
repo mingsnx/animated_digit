@@ -1,3 +1,5 @@
+## [3.2.1] - publish 3.2.1
+* adapt Flutter 2 ~ 3
 ## [3.2.0] - publish 3.2.0
 * Update to Flutter 3.0
 * fix `WidgetsBinding.instance` in flutter 3.0 is not null， so, removing the '!' operator.
