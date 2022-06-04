@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'number_percision.dart';
 
 const TextStyle _$defaultTextStyle =
@@ -38,10 +35,21 @@ typedef TextStyle ValueChangeTextStyle(TextStyle style);
 /// #### 当值符合条件时，改变颜色
 typedef bool ValueColorCondition();
 
+/// #### 用来描述符合条件的 value 字体颜色
+///
+/// #### the value text color
 class ValueColor {
+  /// 颜色条件
+  ///
+  /// the color condition
   ValueColorCondition condition;
+
+  /// text color
   Color color;
 
+  /// #### 用来描述符合条件的 value 字体颜色
+  ///
+  /// #### the value text color
   ValueColor({
     required this.condition,
     required this.color,
@@ -59,7 +67,7 @@ class SingleDigitData {
   Size? size;
 
   /// 根据值变化颜色的集合
-  List<ValueColor>? valueChangeColors;
+  List<ValueColor>? valueColors;
 
   /// 前缀和后缀跟随颜色变化，默认跟随
   bool prefixAndSuffixFollowValueColor;
@@ -82,24 +90,25 @@ class SingleDigitData {
   SingleDigitData({
     this.size,
     this.useTextSize = false,
-    this.valueChangeColors,
+    this.valueColors,
     this.prefixAndSuffixFollowValueColor = true,
     this.builder,
   });
 
   Widget? _buildChangeTextColorWidget(
     String val,
-    TextStyle textStyle,
-  ) {
-    final vc = getLastValidValueColor();
+    TextStyle textStyle, [
+    Key? key,
+  ]) {
+    final vc = _getLastValidValueColor();
     if (vc == null) return null;
-    return Text(val, style: textStyle.copyWith(color: vc.color));
+    return Text(val, key: key, style: textStyle.copyWith(color: vc.color));
   }
 
-  ValueColor? getLastValidValueColor() {
+  ValueColor? _getLastValidValueColor() {
     ValueColor? result;
-    if (valueChangeColors == null) return null;
-    for (var vc in valueChangeColors!) {
+    if (valueColors == null) return null;
+    for (var vc in valueColors!) {
       if (vc.condition()) {
         result = vc;
       }
@@ -385,7 +394,23 @@ class AnimatedDigitWidget extends StatefulWidget {
   final bool animateAutoSize;
 
   /// 根据值变化颜色的集合
-  final List<ValueColor>? valueChangeColors;
+  ///
+  /// ```dart
+  /// int value = 9999; // or use Controller.value
+  /// AnimatedDigitWidget(
+  ///   value: value,
+  ///   textStyle: TextStyle(color: Colors.orange, fontSize: 30),
+  ///   valueColors: [
+  ///     ValueColor(
+  ///       //When value <= 0 , the color changes to red
+  ///       condition: () => value <= 0,
+  ///       color: Colors.red,
+  ///     ),
+  ///     // you can add more ...，but always take the last eligible.
+  ///   ],
+  /// ),
+  /// ```
+  final List<ValueColor>? valueColors;
 
   /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({
@@ -406,7 +431,7 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.loop = true,
     this.autoSize = true,
     this.animateAutoSize = true,
-    this.valueChangeColors,
+    this.valueColors,
   })  : assert(separateLength >= 1,
             "@separateLength at least greater than or equal to 1"),
         assert(!(value == null && controller == null),
@@ -591,10 +616,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.valueChangeColors != null) {
+    if (widget.valueColors != null) {
       _singleDigitData = SingleDigitData(
         useTextSize: true,
-        valueChangeColors: widget.valueChangeColors,
+        valueColors: widget.valueColors,
       );
     }
 
@@ -665,24 +690,13 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   Widget _buildNegativeSymbol() {
-    final sdd = _singleDigitData;
-    late Widget secondChild = Text("-", key: ValueKey("Symbol"), style: style);
-    if (sdd != null && sdd.valueChangeColors != null) {
-      Color c = style.color ?? Colors.black;
-      for (var cfg in sdd.valueChangeColors!) {
-        if (cfg.condition()) {
-          c = cfg.color;
-        }
-      }
-      secondChild = Text(
-        "-",
-        key: ValueKey("Symbol"),
-        style: style.copyWith(color: c),
-      );
-    }
+    final String symbolKey = "_AdwChildSymbol";
+    Widget secondChild = _singleDigitData?._buildChangeTextColorWidget(
+            "-", style, ValueKey(symbolKey)) ??
+        Text("-", key: ValueKey(symbolKey), style: style);
     return AnimatedCrossFade(
-      key: ValueKey("NegativeSymbol"),
-      firstChild: Text("", key: ValueKey("Symbol"), style: style),
+      key: ValueKey("_AdwAnimaNegativeSymbol"),
+      firstChild: Text("", key: ValueKey(symbolKey), style: style),
       secondChild: secondChild,
       sizeCurve: widget.curve,
       firstCurve: widget.curve,
@@ -723,6 +737,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+    properties.add(DoubleProperty('value', currentValue.toDouble()));
   }
 }
 

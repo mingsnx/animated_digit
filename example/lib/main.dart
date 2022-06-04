@@ -105,7 +105,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 curve: Curves.easeOutCubic,
                 enableSeparator: true,
                 fractionDigits: 2,
-                valueChangeColors: [
+                valueColors: [
                   ValueColor(
                     condition: () => _controller.value <= 0,
                     color: Colors.red,

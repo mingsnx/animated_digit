@@ -10,7 +10,7 @@ AnimatedDigitWidget(
     color: Colors.orange[200],
     fontSize: 30,
   ),
-  valueChangeColors: [
+  valueColors: [
     ValueColor(
       //When value <= 0 , the color changes to red
       condition: () => value <= 0,

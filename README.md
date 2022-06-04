@@ -129,7 +129,7 @@ AnimatedDigitWidget(
 ```
 
 ### ✌ If you want to change color based on value
-The add a `ValueColor` object to `valueChangeColors`, which is an array, you can add more ...，but always take the last eligible
+The add a `ValueColor` object to `valueColors`, which is an array, you can add more ...，but always take the last eligible
 ```dart
 int value = 9999; // or use Controller.value
 AnimatedDigitWidget(
@@ -138,7 +138,7 @@ AnimatedDigitWidget(
     color: Colors.orange[200],
     fontSize: 30,
   ),
-  valueChangeColors: [
+  valueColors: [
     ValueColor(
       //When value <= 0 , the color changes to red
       condition: () => value <= 0,
