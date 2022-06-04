@@ -129,7 +129,7 @@ AnimatedDigitWidget(
 ```
 
 ### ✌ 如果想根据 `value` 来改变颜色
-包裹一个 `SingleDigitProvider`，然后在 `SingleDigitData` 中给 `valueChangeColors` 添加一个 `ValueColor` 对象，它是一个数组，你可以添加更多，但始终取最后一个符合条件的。
+通过 `valueChangeColors` 添加一个 `ValueColor` 对象，它是一个数组，你可以添加更多，但始终取最后一个符合条件的。
 ```dart
 int value = 9999; // 或使用 Controller.value
 AnimatedDigitWidget(

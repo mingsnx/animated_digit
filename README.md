@@ -129,7 +129,7 @@ AnimatedDigitWidget(
 ```
 
 ### ✌ If you want to change color based on value
-Wrap a `SingleDigitProvider`, then add a `ValueColor` object to `valueChangeColors` in `SingleDigitData`, which is an array, you can add more ...，but always take the last eligible
+The add a `ValueColor` object to `valueChangeColors`, which is an array, you can add more ...，but always take the last eligible
 ```dart
 int value = 9999; // or use Controller.value
 AnimatedDigitWidget(

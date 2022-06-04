@@ -1,9 +1,25 @@
 ## [3.2.1] - publish 3.2.1
-* adapt Flutter 2 ~ 3
-## [3.2.0] - publish 3.2.0
-* Update to Flutter 3.0
-* fix `WidgetsBinding.instance` in flutter 3.0 is not null， so, removing the '!' operator.
+* adapted Flutter 2 ~ 3
 * added change color based on value.
+**ex**
+```dart
+int value = 9999; // or use Controller.value
+AnimatedDigitWidget(
+  value: value,
+  textStyle: TextStyle(
+    color: Colors.orange[200],
+    fontSize: 30,
+  ),
+  valueChangeColors: [
+    ValueColor(
+      //When value <= 0 , the color changes to red
+      condition: () => value <= 0,
+      color: Colors.red,
+    ),
+    // you can add more ...，but always take the last eligible.
+  ],
+),
+```
 ## [3.1.3] - publish 3.1.3
 * 3.1.3 release
 * fix _setValue null error
