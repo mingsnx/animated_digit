@@ -132,24 +132,20 @@ AnimatedDigitWidget(
 Wrap a `SingleDigitProvider`, then add a `ValueColor` object to `valueChangeColors` in `SingleDigitData`, which is an array, you can add more ...，but always take the last eligible
 ```dart
 int value = 9999; // or use Controller.value
-SingleDigitProvider(
-  data: SingleDigitData(
-    valueChangeColors: [
-      ValueColor(
-        //When value <= 0 , the color changes to red
-        condition: () => value <= 0,
-        color: Colors.red,
-      ),
-      // you can add more ...，but always take the last eligible.
-    ],
+AnimatedDigitWidget(
+  value: value,
+  textStyle: TextStyle(
+    color: Colors.orange[200],
+    fontSize: 30,
   ),
-  child: AnimatedDigitWidget(
-    value: value,
-    textStyle: TextStyle(
-      color: Colors.orange[200],
-      fontSize: 30,
+  valueChangeColors: [
+    ValueColor(
+      //When value <= 0 , the color changes to red
+      condition: () => value <= 0,
+      color: Colors.red,
     ),
-  ),
+    // you can add more ...，but always take the last eligible.
+  ],
 ),
 ```
 
