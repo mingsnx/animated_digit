@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'number_percision.dart';
 
 const TextStyle _$defaultTextStyle =
@@ -528,7 +530,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     super.didChangeDependencies();
     final mq = MediaQuery.maybeOf(context);
     final sdp = SingleDigitProvider.maybeOf(context);
-    if (_mediaQueryData != mq || _singleDigitData != sdp) {
+    if (_mediaQueryData?.textScaleFactor != mq?.textScaleFactor ||
+        _singleDigitData != sdp) {
       _markNeedRebuild();
     }
     _mediaQueryData = mq;
