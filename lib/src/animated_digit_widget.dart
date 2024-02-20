@@ -540,7 +540,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       style = dts.merge(widget._textStyle);
     }
 
-    if (_mediaQueryData?.textScaleFactor != mq?.textScaleFactor ||
+    if (_mediaQueryData?.textScaler != mq?.textScaler ||
         _singleDigitData != sdp ||
         dts != _defaultTextStyle) {
       _markNeedRebuild();
@@ -746,7 +746,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       boxDecoration: widget.boxDecoration,
       duration: widget.duration,
       curve: widget.curve,
-      textScaleFactor: _mediaQueryData?.textScaleFactor,
+      textScaler: _mediaQueryData?.textScaler,
       singleDigitData: _singleDigitData,
       loop: widget.loop,
       autoSize: widget.autoSize,
@@ -778,8 +778,8 @@ class _AnimatedSingleWidget extends StatefulWidget {
   /// initialValue
   final String initialValue;
 
-  /// The [MediaQueryData] in textScaleFactor
-  final double? textScaleFactor;
+  /// The [MediaQueryData] in textScaler
+  final TextScaler? textScaler;
 
   final SingleDigitData? singleDigitData;
 
@@ -798,7 +798,7 @@ class _AnimatedSingleWidget extends StatefulWidget {
     required this.duration,
     required this.curve,
     this.boxDecoration,
-    this.textScaleFactor,
+    this.textScaler,
     this.singleDigitData,
     this.loop = false,
     this.autoSize = false,
@@ -903,17 +903,27 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   /// ## 获取 [text] 的 Size
   Size _getTextSize(String text) {
-    final window = WidgetsBindingx.instance?.window;
-    final fontWeight = window?.accessibilityFeatures.boldText ?? false
-        ? FontWeight.bold
-        : _textStyle.fontWeight;
+    final platformDispatcher = WidgetsBindingx.instance?.platformDispatcher;
+    final fontWeight =
+        platformDispatcher?.accessibilityFeatures.boldText ?? false
+            ? FontWeight.bold
+            : _textStyle.fontWeight;
+
+    final TextScaler textScaler;
+    if (widget.textScaler != null) {
+      textScaler = widget.textScaler!;
+    } else {
+      textScaler =
+          TextScaler.linear(platformDispatcher?.textScaleFactor ?? 1.0);
+    }
+
     TextPainter painter = TextPainter(
       textDirection: TextDirection.ltr,
       text: TextSpan(
         text: widget.autoSize ? text : (isNumber ? "0" : text),
         style: _textStyle.copyWith(fontWeight: fontWeight),
       ),
-      textScaleFactor: widget.textScaleFactor ?? window?.textScaleFactor ?? 1.0,
+      textScaler: textScaler,
     );
     painter.layout();
     return painter.size;
