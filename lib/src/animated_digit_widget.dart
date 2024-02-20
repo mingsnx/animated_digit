@@ -295,7 +295,7 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// 数字字体样式 | digit text style
   ///
   /// see [TextStyle]
-  late final TextStyle? _textStyle;
+  late final TextStyle _textStyle;
 
   /// 动画时间 | animate duration
   ///
@@ -464,6 +464,12 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   /// see [SingleDigitData]
   SingleDigitData? _singleDigitData;
 
+  // text style
+  late TextStyle style;
+
+  // Keep track of the DefaultTextStyle InheritedWidget value
+  TextStyle? _defaultTextStyle;
+
   /// mark dirty, rebuild widget
   ///
   /// 当触发以下回调时
@@ -476,8 +482,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   ///
   /// 在 [build] 完成时，恢复为 `false`, 以待下次重建
   bool _dirty = false;
-
-  late final TextStyle style = widget._textStyle ?? _$defaultTextStyle;
 
   /// the controller value or widget value
   num get currentValue => widget.controller?.value ?? widget.value!;
@@ -530,12 +534,20 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     super.didChangeDependencies();
     final mq = MediaQuery.maybeOf(context);
     final sdp = SingleDigitProvider.maybeOf(context);
-    if (_mediaQueryData?.textScaleFactor != mq?.textScaleFactor ||
-        _singleDigitData != sdp) {
+
+    final dts = DefaultTextStyle.of(context).style;
+    if (dts != _defaultTextStyle) {
+      style = dts.merge(widget._textStyle);
+    }
+
+    if (_mediaQueryData?.textScaler != mq?.textScaler ||
+        _singleDigitData != sdp ||
+        dts != _defaultTextStyle) {
       _markNeedRebuild();
     }
     _mediaQueryData = mq;
     _singleDigitData = sdp;
+    _defaultTextStyle = dts;
   }
 
   @override
@@ -607,6 +619,11 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     widget.controller?.addListener(_updateValue);
     if (widget.controller == null) {
       _updateValue();
+    }
+
+    if (widget._textStyle != oldWidget._textStyle) {
+      style = _defaultTextStyle!.merge(widget._textStyle);
+      _markNeedRebuild();
     }
   }
 
@@ -729,7 +746,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       boxDecoration: widget.boxDecoration,
       duration: widget.duration,
       curve: widget.curve,
-      textScaleFactor: _mediaQueryData?.textScaleFactor,
+      textScaler: _mediaQueryData?.textScaler,
       singleDigitData: _singleDigitData,
       loop: widget.loop,
       autoSize: widget.autoSize,
@@ -761,8 +778,8 @@ class _AnimatedSingleWidget extends StatefulWidget {
   /// initialValue
   final String initialValue;
 
-  /// The [MediaQueryData] in textScaleFactor
-  final double? textScaleFactor;
+  /// The [MediaQueryData] in textScaler
+  final TextScaler? textScaler;
 
   final SingleDigitData? singleDigitData;
 
@@ -781,7 +798,7 @@ class _AnimatedSingleWidget extends StatefulWidget {
     required this.duration,
     required this.curve,
     this.boxDecoration,
-    this.textScaleFactor,
+    this.textScaler,
     this.singleDigitData,
     this.loop = false,
     this.autoSize = false,
@@ -886,19 +903,27 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   /// ## 获取 [text] 的 Size
   Size _getTextSize(String text) {
-    final window = WidgetsBindingx.instance?.window;
-    final fontWeight = window?.accessibilityFeatures.boldText ?? false
-        ? FontWeight.bold
-        : _textStyle.fontWeight == FontWeight.bold
+    final platformDispatcher = WidgetsBindingx.instance?.platformDispatcher;
+    final fontWeight =
+        platformDispatcher?.accessibilityFeatures.boldText ?? false
             ? FontWeight.bold
-            : FontWeight.normal;
+            : _textStyle.fontWeight;
+
+    final TextScaler textScaler;
+    if (widget.textScaler != null) {
+      textScaler = widget.textScaler!;
+    } else {
+      textScaler =
+          TextScaler.linear(platformDispatcher?.textScaleFactor ?? 1.0);
+    }
+
     TextPainter painter = TextPainter(
       textDirection: TextDirection.ltr,
       text: TextSpan(
         text: widget.autoSize ? text : (isNumber ? "0" : text),
         style: _textStyle.copyWith(fontWeight: fontWeight),
       ),
-      textScaleFactor: widget.textScaleFactor ?? window?.textScaleFactor ?? 1.0,
+      textScaler: textScaler,
     );
     painter.layout();
     return painter.size;
