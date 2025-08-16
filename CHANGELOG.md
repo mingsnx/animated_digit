@@ -1,3 +1,18 @@
+## [3.2.4] - publish 3.2.4
+* fix [#18](https://github.com/mingsnx/animated_digit/pull/18) and merge pull.
+* 🍓 告知：这个 `<3.3+` 是 `sdk: <3.0.0` 以下的支持版本，`sdk: >= 3.0.0+` 的版本在 3.3+ 后续发布
+* 🍓 Notification: This applies to versions < 3.3+ (supporting sdk: < 3.0.0). Versions with sdk: >= 3.0.0+ will be included in subsequent releases starting from 3.3+.
+
+## [3.2.3] - publish 3.2.3
+* upgrade: 'window' is deprecated and shouldn't be used. Look up the current FlutterView from the context via View.of(context) or consult the PlatformDispatcher directly instead. Deprecated to prepare for the upcoming multi-window support. This feature was deprecated after v3.7.0-32.0.pre.
+
+```dart
+final window = WidgetsBinding.instance.window; // deprecated
+```
+
+## [3.2.2] - publish 3.2.2
+* FIX: #10
+
 ## [3.2.1] - publish 3.2.1
 * adapted Flutter 2 ~ 3
 * added change color based on value.
