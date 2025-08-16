@@ -20,12 +20,17 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
     with SingleTickerProviderStateMixin {
   AnimatedDigitController _controller = AnimatedDigitController(111.987);
 
-  double textscaleFactor = 1.0;
+  TextScaler textScaler = TextScaler.noScaling;
 
   @override
   void initState() {
     super.initState();
-    textscaleFactor = MediaQuery.textScaleFactorOf(context);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    textScaler = MediaQuery.textScalerOf(context);
   }
 
   @override
@@ -48,7 +53,9 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
 
   void updateFontScale() {
     setState(() {
-      textscaleFactor = textscaleFactor == 1.0 ? 1.2 : 1.0;
+      textScaler = textScaler == TextScaler.noScaling
+          ? TextScaler.linear(1.2)
+          : TextScaler.noScaling;
     });
   }
 
@@ -219,8 +226,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
       ),
       builder: (context, home) {
         return MediaQuery(
-          data:
-              MediaQuery.of(context).copyWith(textScaleFactor: textscaleFactor),
+          data: MediaQuery.of(context).copyWith(textScaler: textScaler),
           child: home!,
         );
       },
