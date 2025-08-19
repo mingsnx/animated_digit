@@ -1,4 +1,9 @@
-## [3.3.1] - publish 3.3.1
+## [3.3.1+2] - publish 3.3.1+2
+* 增加了最小整数位支持 `enableMinIntegerDigits`，当数字 >= 0 <= 9 时，左边补 0，默认 false，不启用。如果为 true，且 `fractionDigits` 必须为 0，则启用，以满足需求 [#20](https://github.com/mingsnx/animated_digit/pull/20)
+
+* Added support for minimum integer digit with enableMinIntegerDigits: when the number is between 0 and 9 (inclusive), it left-pads with 0. Defaults to false (disabled). If set to true, fractionDigits must be 0 for this feature to be enabled, meeting specific requirements [#20](https://github.com/mingsnx/animated_digit/pull/20). 
+
+## [3.3.1+1] - publish 3.3.1+1
 * 从 3.3.0 起（包含），需要 flutter 版本 >= 3.16
 * v3.3.0+ need flutter >= v3.16+
 * 优化了颜色和增减数字位的过渡动画

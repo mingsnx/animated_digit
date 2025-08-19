@@ -130,7 +130,7 @@ AnimatedDigitWidget(
 
 ### ✌ If you want to change color based on value
 The add a `ValueColor` object to `valueColors`, which is an array, you can add more ...，but always take the last eligible
-> Since version v3.3.1, colors have supported animated transitions instead of abrupt direct color switching, eliminating harsh transitions.
+> Since version v3.3.1+1, colors have supported animated transitions instead of abrupt direct color switching, eliminating harsh transitions.
 ```dart
 int value = 9999; // or use Controller.value
 AnimatedDigitWidget(
@@ -150,11 +150,22 @@ AnimatedDigitWidget(
 ),
 ```
 
-### Disable the initial scroll animation.
+### 🍓Disable the initial scroll animation.
 ```dart
 AnimatedDigitWidget(
   ...,
-  firstScrollAnimate: false // set false | >= v3.3.1
+  firstScrollAnimate: false // set false | >= v3.3.1+1
+),
+```
+
+
+### 🍋Support for padding the integer part with leading zeros when the number of digits is less than the specified minimum
+> range: [0, 9], 🐧0 ➡️ 00、1 ➡️ 01、2 ➡️ 02 ...
+```dart
+AnimatedDigitWidget(
+  ...,
+  fractionDigits: 0, // It must be set to 0; if there are decimal places, it's really unnecessary (wry smile)~~
+  enableMinIntegerDigits: true // set true， | >= v3.3.1+2
 ),
 ```
 

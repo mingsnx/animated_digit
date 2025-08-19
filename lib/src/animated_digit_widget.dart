@@ -437,6 +437,17 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// [firstScrollAnimate] 为 true 时，初始渲染时会执行动画，动画始终从 0 起始滚动至 [value]
   final bool firstScrollAnimate;
 
+  /// 最小整数位数，不足时向左补 '0'，但是 [fractionDigits] 必须是 0
+  /// 
+  /// e.g. value = 1, [enableMinIntegerDigits] = true -> "01"
+  /// 
+  /// 🍓！🍓！🍓！🍓
+  /// 
+  /// [fractionDigits] it must be 0
+  /// 
+  /// 🍓🍓🍓🍓🍓🍓
+  final bool enableMinIntegerDigits;
+
   /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({
     Key? key,
@@ -458,6 +469,7 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.animateAutoSize = true,
     this.valueColors,
     this.firstScrollAnimate = true,
+    this.enableMinIntegerDigits = false,
   })  : assert(separateLength >= 1,
             "@separateLength at least greater than or equal to 1"),
         assert(!(value == null && controller == null),
@@ -732,6 +744,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   void _rebuild([String? value]) {
     _widgets.clear();
     String newValue = value ?? _getFormatValueAsString();
+    // 检查最小整数位数
+    if (widget.enableMinIntegerDigits && widget.fractionDigits == 0 && newValue.length < 2) {
+      newValue = newValue.padLeft(2, "0");
+    }
     for (var i = 0; i < newValue.length; i++) {
       _addAnimatedSingleWidget(newValue[i]);
     }
@@ -748,6 +764,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
             (lenOld - lenNew) +
                 widget.fractionDigits +
                 (widget.fractionDigits > 0 ? 1 : 0));
+      }
+      // 检查最小整数位数
+      if (widget.enableMinIntegerDigits && widget.fractionDigits == 0 && _widgets.length < 2) {
+        _addAnimatedSingleWidget("0");
       }
       for (var i = 0; i < (lenNew == 0 ? 1 : lenNew); i++) {
         final String curr = newValue[i];
