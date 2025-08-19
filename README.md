@@ -130,6 +130,7 @@ AnimatedDigitWidget(
 
 ### ✌ If you want to change color based on value
 The add a `ValueColor` object to `valueColors`, which is an array, you can add more ...，but always take the last eligible
+> Since version v3.3.1, colors have supported animated transitions instead of abrupt direct color switching, eliminating harsh transitions.
 ```dart
 int value = 9999; // or use Controller.value
 AnimatedDigitWidget(
@@ -146,6 +147,14 @@ AnimatedDigitWidget(
     ),
     // you can add more ...，but always take the last eligible.
   ],
+),
+```
+
+### Disable the initial scroll animation.
+```dart
+AnimatedDigitWidget(
+  ...,
+  firstScrollAnimate: false // set false | >= v3.3.1
 ),
 ```
 

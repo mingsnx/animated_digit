@@ -1,3 +1,9 @@
+## [3.3.1] - publish 3.3.1
+* 从 3.3.0 起（包含），需要 flutter 版本 >= 3.16
+* v3.3.0+ need flutter >= v3.16+
+* 优化了颜色和增减数字位的过渡动画
+* Optimized color transitions and digit increment/decrement animations.
+
 ## [3.3.0] - publish 3.3.0
 * support sdk >=3.0.0+, if your sdk version is < 3.0.0, use 3.2+ instead.
 * fix [#15](https://github.com/mingsnx/animated_digit/pull/15)  [#18](https://github.com/mingsnx/animated_digit/pull/18)

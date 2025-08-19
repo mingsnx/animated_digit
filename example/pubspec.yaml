@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  animated_flip_counter: ^0.3.4
   animated_digit:
     path: ../
 

@@ -9,7 +9,7 @@ void main() {
 }
 
 class AnimatedDigitWidgetExample extends StatefulWidget {
-  AnimatedDigitWidgetExample({Key? key}) : super(key: key);
+  const AnimatedDigitWidgetExample({super.key});
 
   @override
   _AnimatedDigitWidgetExampleState createState() =>
@@ -18,7 +18,7 @@ class AnimatedDigitWidgetExample extends StatefulWidget {
 
 class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
     with SingleTickerProviderStateMixin {
-  AnimatedDigitController _controller = AnimatedDigitController(111.987);
+  final AnimatedDigitController _controller = AnimatedDigitController(111.987);
 
   TextScaler textScaler = TextScaler.noScaling;
 
@@ -97,6 +97,8 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 controller: _controller,
                 textStyle: TextStyle(color: Colors.orange, fontSize: 30),
                 enableSeparator: true,
+                firstScrollAnimate: false,
+                suffix: "🐬",
               ),
               SizedBox(height: 30),
               AnimatedDigitWidget(
@@ -104,18 +106,42 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                 textStyle: TextStyle(color: Colors.pinkAccent, fontSize: 30),
                 enableSeparator: true,
                 fractionDigits: 1,
+                firstScrollAnimate: false,
+                prefix: "🐧",
+                valueColors: [
+                  ValueColor(
+                    condition: () => _controller.value % 2 == 0,
+                    color: const Color.fromARGB(255, 224, 211, 88),
+                  ),
+                  ValueColor(
+                    condition: () =>  _controller.value % 2 != 0,
+                    color: Color.fromARGB(255, 66, 230, 33),
+                  ),
+                  ValueColor(
+                    condition: () => _controller.value % 3 == 0,
+                    color: const Color.fromARGB(255, 32, 181, 240),
+                  ),
+                ],
+                duration: Duration(milliseconds: 500),
               ),
               SizedBox(height: 30),
               AnimatedDigitWidget(
                 controller: _controller,
+                firstScrollAnimate: false,
                 textStyle: TextStyle(color: Colors.cyan, fontSize: 30),
                 curve: Curves.easeOutCubic,
                 enableSeparator: true,
                 fractionDigits: 2,
+                prefix: "\$",
+                suffix: "€",
                 valueColors: [
                   ValueColor(
                     condition: () => _controller.value <= 0,
                     color: Colors.red,
+                  ),
+                  ValueColor(
+                    condition: () => _controller.value >= 0,
+                    color: Colors.cyan,
                   ),
                   ValueColor(
                     condition: () => _controller.value >= 1999,
@@ -142,6 +168,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                     color: Colors.purple,
                   ),
                 ],
+                duration: Duration(milliseconds: 500),
               ),
               SizedBox(height: 30),
               AnimatedDigitWidget(

@@ -75,3 +75,4 @@ build/
 
 # FVM Version Cache
 .fvm/
+*.cxx/

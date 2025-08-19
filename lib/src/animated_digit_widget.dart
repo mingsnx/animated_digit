@@ -98,13 +98,32 @@ class SingleDigitData {
   });
 
   Widget? _buildChangeTextColorWidget(
+    BuildContext context,
     String val,
     TextStyle textStyle, [
     Key? key,
+    Duration? duration,
+    Curve? curve,
   ]) {
     final vc = _getLastValidValueColor();
     if (vc == null) return null;
-    return Text(val, key: key, style: textStyle.copyWith(color: vc.color));
+
+    final d = duration ?? const Duration(milliseconds: 300);
+    final c = curve ?? Curves.easeInOut;
+
+    WidgetsBindingx.instance?.addPostFrameCallback((_) {
+      textStyle = textStyle.copyWith(color: vc.color);
+    });
+    // 使用颜色动画
+    return _AnimatedDigitColorWidget(
+      key: key,
+      text: val,
+      baseStyle: textStyle,
+      targetColor: vc.color,
+      duration: d,
+      curve: c,
+    );
+
   }
 
   ValueColor? _getLastValidValueColor() {
@@ -414,6 +433,12 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// ```
   final List<ValueColor>? valueColors;
 
+  /// 初始时是否执行动画
+  ///
+  /// [firstScrollAnimate] 为 true 时，初始渲染时会执行动画，动画始终从 0 起始滚动至 [value]
+  final bool firstScrollAnimate;
+
+
   /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({
     Key? key,
@@ -434,6 +459,7 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.autoSize = true,
     this.animateAutoSize = true,
     this.valueColors,
+    this.firstScrollAnimate = true,
   })  : assert(separateLength >= 1,
             "@separateLength at least greater than or equal to 1"),
         assert(!(value == null && controller == null),
@@ -480,7 +506,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   /// 将需要被重建，
   /// 会通过 [_markNeedRebuild] 变更成 `true`，
   ///
-  /// 在 [build] 完成时，恢复为 `false`, 以待下次重建
+  /// 在 [build] 完成时，恢复为 `false', 以待下次重建
   bool _dirty = false;
 
   /// the controller value or widget value
@@ -503,6 +529,9 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   /// is negative number
   bool get isNegative => _value.isNegative;
+
+  /// is first initial
+  late bool _firstScrollAnimate = widget.firstScrollAnimate;
 
   @override
   void initState() {
@@ -636,6 +665,10 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBindingx.instance?.addPostFrameCallback((_) {
+      _firstScrollAnimate = true;
+    });
+
     if (widget.valueColors != null) {
       _singleDigitData = SingleDigitData(
         useTextSize: true,
@@ -650,14 +683,22 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     }
     _dirty = false;
 
+    // Wrap the rendered Row with AnimatedSize so that when children count/size changes
+    // the overall width/height will animate smoothly instead of jump.
+    final Widget animated = AnimatedSize(
+      duration: widget.duration,
+      curve: widget.curve,
+      child: _build(),
+    );
+
     if (_singleDigitData != null) {
       return SingleDigitProvider(
         data: _singleDigitData!,
-        child: _build(),
+        child: animated,
       );
     }
 
-    return _build();
+    return animated;
   }
 
   Widget _build() {
@@ -667,7 +708,15 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       children: [
         if (widget.prefix != null) _buildChangeTextColorWidget(widget.prefix!),
         _buildNegativeSymbol(),
-        ..._widgets,
+        AnimatedSize(
+          duration: widget.duration,
+          curve: widget.curve,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _widgets,
+          ),
+        ),
         if (widget.suffix != null) _buildChangeTextColorWidget(widget.suffix!),
       ],
     );
@@ -677,7 +726,9 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     Widget result = Text(val, style: style);
     final sdd = _singleDigitData;
     if (sdd == null || !sdd.prefixAndSuffixFollowValueColor) return result;
-    return sdd._buildChangeTextColorWidget(val, style) ?? result;
+    return sdd._buildChangeTextColorWidget(
+            context, val, style, null, widget.duration, widget.curve) ??
+        result;
   }
 
   void _rebuild([String? value]) {
@@ -711,8 +762,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   Widget _buildNegativeSymbol() {
     final String symbolKey = "_AdwChildSymbol";
-    Widget secondChild = _singleDigitData?._buildChangeTextColorWidget(
-            "-", style, ValueKey(symbolKey)) ??
+    Widget secondChild = _singleDigitData?._buildChangeTextColorWidget(context,
+            "-", style, ValueKey(symbolKey), widget.duration, widget.curve) ??
         Text("-", key: ValueKey(symbolKey), style: style);
     return AnimatedCrossFade(
       key: ValueKey("_AdwAnimaNegativeSymbol"),
@@ -751,6 +802,8 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
       loop: widget.loop,
       autoSize: widget.autoSize,
       animateAutoSize: widget.animateAutoSize,
+      firstScrollAnimate: _firstScrollAnimate,
+      controller: widget.controller,
     );
   }
 
@@ -792,17 +845,26 @@ class _AnimatedSingleWidget extends StatefulWidget {
   /// use animate scale text size scale
   final bool animateAutoSize;
 
+  /// 初始时是否执行动画
+  ///
+  /// [firstScrollAnimate] 为 true 时，初始渲染时会执行动画，动画始终从 0 起始滚动至 [initialValue]
+  final bool firstScrollAnimate;
+
+  final AnimatedDigitController? controller;
+
   _AnimatedSingleWidget({
     required this.initialValue,
     required this.textStyle,
     required this.duration,
     required this.curve,
+    required this.controller,
     this.boxDecoration,
     this.textScaler,
     this.singleDigitData,
     this.loop = false,
     this.autoSize = false,
     this.animateAutoSize = false,
+    this.firstScrollAnimate = true,
   }) : super(key: GlobalKey<_AnimatedSingleWidgetState>());
 
   @override
@@ -818,7 +880,13 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     data = widget.singleDigitData;
     currentValue = widget.initialValue;
     _initSize();
-    _animateTo();
+    print("--- $currentValue ${widget.firstScrollAnimate} ---");
+    // 当不需要初始滚动动画时
+    if (!widget.firstScrollAnimate) {
+      _jumpTo();
+    } else {
+      _animateTo();
+    }
   }
 
   SingleDigitData? data;
@@ -940,6 +1008,18 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     }
   }
 
+  /// 跳的距离 [scrollOffset]
+  void _jumpTo() {
+    if (isNumber && oldValue != currentValue) {
+      WidgetsBindingx.instance?.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          _computeScrollOffset();
+          scrollController.jumpTo(scrollOffset);
+        }
+      });
+    }
+  }
+
   /// 滚动到距离 [scrollOffset]
   Future<void> _scrollTo() async {
     _computeScrollOffset();
@@ -1038,7 +1118,9 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     Widget child = defaultBuildSingleWidget(val);
     if (data == null) return child;
     final SingleDigitData sdd = data!;
-    child = sdd._buildChangeTextColorWidget(val, _textStyle) ?? child;
+    child = sdd._buildChangeTextColorWidget(
+            context, val, _textStyle, null, widget.duration, widget.curve) ??
+        child;
     if (sdd.builder != null) {
       child = sdd.builder!(valueSize, val, isNumber, child);
     }
@@ -1054,5 +1136,94 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+  }
+}
+
+///
+/// ### 数字文本颜色渐变动画 widget
+///
+class _AnimatedDigitColorWidget extends StatefulWidget {
+  final String text;
+  final TextStyle baseStyle;
+  final Color targetColor;
+  final Duration duration;
+  final Curve curve;
+
+  const _AnimatedDigitColorWidget({
+    Key? key,
+    required this.text,
+    required this.baseStyle,
+    required this.targetColor,
+    required this.duration,
+    required this.curve,
+  }) : super(key: key);
+
+  @override
+  _AnimatedDigitColorWidgetState createState() =>
+      _AnimatedDigitColorWidgetState();
+}
+
+class _AnimatedDigitColorWidgetState extends State<_AnimatedDigitColorWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Color?> _colorAnim;
+  Color? _currentShownColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentShownColor = widget.baseStyle.color ?? Colors.black87;
+    _controller = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
+
+    _colorAnim = ColorTween(
+      begin: _currentShownColor,
+      end: widget.targetColor,
+    ).animate(CurvedAnimation(parent: _controller, curve: widget.curve));
+
+    if (_currentShownColor != widget.targetColor) {
+      _controller.forward(from: 0.0);
+    } else {
+      _controller.value = 1.0;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _AnimatedDigitColorWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final Color? animValue = _colorAnim.value ?? _currentShownColor;
+    if (oldWidget.targetColor != widget.targetColor) {
+      _controller.duration = widget.duration;
+      _colorAnim = ColorTween(begin: animValue, end: widget.targetColor)
+          .animate(CurvedAnimation(parent: _controller, curve: widget.curve));
+      _controller.forward(from: 0.0);
+    } else if (oldWidget.baseStyle.color != widget.baseStyle.color) {
+      final Color? from = _colorAnim.value ?? widget.baseStyle.color;
+      _colorAnim = ColorTween(begin: from, end: widget.targetColor)
+          .animate(CurvedAnimation(parent: _controller, curve: widget.curve));
+      _controller.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _colorAnim,
+      builder: (context, child) {
+        final color = _colorAnim.value ?? widget.baseStyle.color;
+        return Text(
+          widget.text,
+          style: widget.baseStyle.copyWith(color: color),
+        );
+      },
+    );
   }
 }
