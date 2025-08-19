@@ -74,20 +74,20 @@ _controller.dispose();
 
 ### 🖼 UI Effect Image & 💻 Code Example
 
-[![7Dcj6f.png](https://s4.ax1x.com/2022/01/19/7Dcj6f.png)](https://imgtu.com/i/7Dcj6f)
+[![ex1.png](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex1.png)](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex1.png)
 ```dart
 AnimatedDigitWidget(
   value: 12531.98, // or use controller
 ),
 ```
-[![7DcznS.png](https://s4.ax1x.com/2022/01/19/7DcznS.png)](https://imgtu.com/i/7DcznS)
+[![ex2.png](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex2.png)](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex2.png)
 ```dart
 AnimatedDigitWidget(
   value: 12531.98, // or use controller
   enableSeparator: true,
 ),
 ```
-[![7DcX1P.png](https://s4.ax1x.com/2022/01/19/7DcX1P.png)](https://imgtu.com/i/7DcX1P)
+[![ex3.png](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex3.png)](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex3.png)
 ```dart
 AnimatedDigitWidget(
   value: 12531.98, // or use controller
@@ -95,7 +95,7 @@ AnimatedDigitWidget(
   enableSeparator: true,
 ),
 ```
-[![7DcOpt.png](https://s4.ax1x.com/2022/01/19/7DcOpt.png)](https://imgtu.com/i/7DcOpt)
+[![ex4.png](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex4.png)](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex4.png)
 ```dart
 SingleDigitProvider(
   data: SingleDigitData(
@@ -113,7 +113,7 @@ SingleDigitProvider(
   ),
 ),
 ```
-[![7DcvX8.png](https://s4.ax1x.com/2022/01/19/7DcvX8.png)](https://imgtu.com/i/7DcvX8)
+[![ex5.png](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex5.png)](https://raw.githubusercontent.com/mingsnx/animated_digit/master/example/ex5.png)
 ```dart
 AnimatedDigitWidget(
   value: 12531.98, // or use controller
