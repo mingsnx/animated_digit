@@ -123,7 +123,6 @@ class SingleDigitData {
       duration: d,
       curve: c,
     );
-
   }
 
   ValueColor? _getLastValidValueColor() {
@@ -437,7 +436,6 @@ class AnimatedDigitWidget extends StatefulWidget {
   ///
   /// [firstScrollAnimate] 为 true 时，初始渲染时会执行动画，动画始终从 0 起始滚动至 [value]
   final bool firstScrollAnimate;
-
 
   /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({

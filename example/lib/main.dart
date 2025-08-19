@@ -114,7 +114,7 @@ class _AnimatedDigitWidgetExampleState extends State<AnimatedDigitWidgetExample>
                     color: const Color.fromARGB(255, 224, 211, 88),
                   ),
                   ValueColor(
-                    condition: () =>  _controller.value % 2 != 0,
+                    condition: () => _controller.value % 2 != 0,
                     color: Color.fromARGB(255, 66, 230, 33),
                   ),
                   ValueColor(
