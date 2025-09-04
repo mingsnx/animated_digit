@@ -898,7 +898,7 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
     data = widget.singleDigitData;
     currentValue = widget.initialValue;
     _initSize();
-    print("--- $currentValue ${widget.firstScrollAnimate} ---");
+    // print("--- $currentValue ${widget.firstScrollAnimate} ---");
     // 当不需要初始滚动动画时
     if (!widget.firstScrollAnimate) {
       _jumpTo();
