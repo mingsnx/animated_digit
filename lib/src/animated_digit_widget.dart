@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'number_percision.dart';
 
-const TextStyle _$defaultTextStyle =
-    TextStyle(color: Colors.black, fontSize: 25);
+const TextStyle _$defaultTextStyle = TextStyle(fontSize: 25);
 
 /// 为了适配flutter 2 中的 `WidgetsBinding.instance` 可能为 `null`
 ///
@@ -475,15 +474,8 @@ class AnimatedDigitWidget extends StatefulWidget {
         assert(!(value == null && controller == null),
             "the @value & @controller cannot be null at the same time"),
         super(key: key) {
-    if (textStyle != null) {
-      if (textStyle.color == null) {
-        _textStyle = textStyle.copyWith(color: Colors.black);
-      } else {
-        _textStyle = textStyle;
-      }
-    } else {
-      _textStyle = _$defaultTextStyle;
-    }
+    // Keep color nullable so DefaultTextStyle/Theme can drive the default color.
+    _textStyle = textStyle ?? _$defaultTextStyle;
   }
 
   @override
@@ -755,26 +747,24 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   void _update() {
     String newValue = _getFormatValueAsString();
+    // 比较长度前先应用最小整数位补零，否则 0~9 会被误判为长度变化并反复重建。
+    if (widget.enableMinIntegerDigits &&
+        widget.fractionDigits == 0 &&
+        newValue.length < 2) {
+      newValue = newValue.padLeft(2, '0');
+    }
+
     final int lenNew = newValue.length;
     final int lenOld = _widgets.length;
-    if (value == 0 || lenNew == lenOld) {
-      if (lenNew < lenOld) {
-        _widgets.removeRange(
-            lenNew - 1,
-            (lenOld - lenNew) +
-                widget.fractionDigits +
-                (widget.fractionDigits > 0 ? 1 : 0));
-      }
-      // 检查最小整数位数
-      if (widget.enableMinIntegerDigits && widget.fractionDigits == 0 && _widgets.length < 2) {
-        _addAnimatedSingleWidget("0");
-      }
-      for (var i = 0; i < (lenNew == 0 ? 1 : lenNew); i++) {
-        final String curr = newValue[i];
-        _setValue(_widgets[i].key, curr);
-      }
-    } else {
+
+    if (lenNew != lenOld) {
       _rebuild(newValue);
+      return;
+    }
+
+    for (var i = 0; i < (lenNew == 0 ? 1 : lenNew); i++) {
+      final String curr = newValue[i];
+      _setValue(_widgets[i].key, curr);
     }
   }
 
